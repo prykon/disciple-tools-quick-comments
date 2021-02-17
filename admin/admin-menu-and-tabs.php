@@ -2,24 +2,41 @@
 if ( ! defined( 'ABSPATH' ) ) { exit; } // Exit if accessed directly
 
 /**
- * Class Disciple_Tools_Plugin_Starter_Template_Menu
+ * Class Disciple_Tools_Quick_Comments_Menu
  */
-class Disciple_Tools_Plugin_Starter_Template_Menu {
+class Disciple_Tools_Quick_Comments_Menu {
 
-    public $token = 'disciple_tools_plugin_starter_template';
+    public $token = 'disciple_tools_quick_comments';
 
     private static $_instance = null;
 
     /**
-     * Disciple_Tools_Plugin_Starter_Template_Menu Instance
+     * Get all types of quick_comment types dynamically.
+     * This helps ensure that even if a new post type is created by a plugin,
+     * it can still have Quick Comment compatibility.
+     */
+    public static function get_all_quick_comment_types(){
+        global $wpdb;
+        $query = "
+            SELECT DISTINCT REPLACE(comment_type, 'qc_', '')
+            FROM $wpdb->comments
+            WHERE comment_type LIKE 'qc_%'
+            ORDER BY comment_type ASC;
+        ";
+        $results = $wpdb->get_col( $query );
+        return $results;
+    }
+
+    /**
+     * Disciple_Tools_Quick_Comments_Menu Instance
      *
-     * Ensures only one instance of Disciple_Tools_Plugin_Starter_Template_Menu is loaded or can be loaded.
+     * Ensures only one instance of Disciple_Tools_Quick_Comments_Menu is loaded or can be loaded.
      *
      * @since 0.1.0
      * @static
-     * @return Disciple_Tools_Plugin_Starter_Template_Menu instance
+     * @return Disciple_Tools_Quick_Comments_Menu instance
      */
-    public static function instance() {
+    public static function instance() {        
         if ( is_null( self::$_instance ) ) {
             self::$_instance = new self();
         }
@@ -44,7 +61,7 @@ class Disciple_Tools_Plugin_Starter_Template_Menu {
      * @since 0.1
      */
     public function register_menu() {
-        add_submenu_page( 'dt_extensions', 'Plugin Starter Template', 'Plugin Starter Template', 'manage_dt', $this->token, [ $this, 'content' ] );
+        add_submenu_page( 'dt_extensions', 'Quick Comments Plugin', 'Quick Comments Plugin', 'manage_dt', $this->token, [ $this, 'content' ] );
     }
 
     /**
@@ -62,50 +79,43 @@ class Disciple_Tools_Plugin_Starter_Template_Menu {
             wp_die( 'You do not have sufficient permissions to access this page.' );
         }
 
+        $tabs = self::get_all_quick_comment_types();
+
         if ( isset( $_GET["tab"] ) ) {
             $tab = sanitize_key( wp_unslash( $_GET["tab"] ) );
         } else {
-            $tab = 'general';
+            $tab = 'all';
         }
 
         $link = 'admin.php?page='.$this->token.'&tab=';
 
         ?>
         <div class="wrap">
-            <h2>Plugin Starter Template</h2>
+            <h2>Quick Comments Plugin</h2>
             <h2 class="nav-tab-wrapper">
-                <a href="<?php echo esc_attr( $link ) . 'general' ?>"
-                   class="nav-tab <?php echo esc_html( ( $tab == 'general' || !isset( $tab ) ) ? 'nav-tab-active' : '' ); ?>">General</a>
-                <a href="<?php echo esc_attr( $link ) . 'second' ?>" class="nav-tab <?php echo esc_html( ( $tab == 'second' || !isset( $tab ) ) ? 'nav-tab-active' : '' ); ?>">Second</a>
+                <a href="<?php echo esc_attr( $link ) . 'all' ?>" class="nav-tab <?php echo esc_html( ( $tab == 'all' || !isset( $tab ) ) ? 'nav-tab-active' : '' ); ?>">All</a>
+                <?php foreach($tabs as $t ) : ?>
+                
+                <a href="<?php echo esc_attr( $link ) . $t ?>" class="nav-tab <?php echo esc_html( ( $tab == $t || !isset( $tab ) ) ? 'nav-tab-active' : '' ); ?>"><?php echo ucwords( esc_html( $t ) ); ?></a>
+            <?php endforeach; ?>
             </h2>
-
             <?php
-            switch ($tab) {
-                case "general":
-                    $object = new Disciple_Tools_Plugin_Starter_Template_Tab_General();
-                    $object->content();
-                    break;
-                case "second":
-                    $object = new Disciple_Tools_Plugin_Starter_Template_Tab_Second();
-                    $object->content();
-                    break;
-                default:
-                    break;
-            }
+                $object = new Disciple_Tools_Quick_Comments_Tab( esc_html( $tab ) );
+                $object->content( $tab );
             ?>
-
         </div><!-- End wrap -->
 
         <?php
     }
 }
-Disciple_Tools_Plugin_Starter_Template_Menu::instance();
+Disciple_Tools_Quick_Comments_Menu::instance();
 
 /**
- * Class Disciple_Tools_Plugin_Starter_Template_Tab_General
+ * Class Disciple_Tools_Quick_Comments_Tab
  */
-class Disciple_Tools_Plugin_Starter_Template_Tab_General {
-    public function content() {
+class Disciple_Tools_Quick_Comments_Tab {
+
+    public function content( $quick_comment_type = 'all' ) {
         ?>
         <div class="wrap">
             <div id="poststuff">
@@ -113,7 +123,7 @@ class Disciple_Tools_Plugin_Starter_Template_Tab_General {
                     <div id="post-body-content">
                         <!-- Main Column -->
 
-                        <?php $this->main_column() ?>
+                        <?php $this->main_column( $quick_comment_type ) ?>
 
                         <!-- End Main Column -->
                     </div><!-- end post-body-content -->
@@ -132,21 +142,57 @@ class Disciple_Tools_Plugin_Starter_Template_Tab_General {
         <?php
     }
 
-    public function main_column() {
+    public function get_quick_comments( $quick_comment_type = 'all' ){
+        global $wpdb;
+        if ( $quick_comment_type == 'all' ){
+
+            $query = "
+                SELECT comment_content, REPLACE(comment_type, 'qc_', '') AS comment_type
+                FROM $wpdb->comments
+                WHERE comment_type LIKE 'qc_%'
+                ORDER BY comment_content ASC;
+                ";
+        } else {
+            $query = $wpdb->prepare("
+                SELECT DISTINCT comment_content, REPLACE(comment_type, 'qc_', '') AS comment_type
+                FROM $wpdb->comments
+                WHERE comment_type = %s
+                ORDER BY comment_content ASC;"
+                , 'qc_' . $quick_comment_type );
+        }
+        $results = $wpdb->get_results( $query, ARRAY_A );
+        return $results;
+    }
+
+    public function main_column( $quick_comment_type = 'all' ) {
+        $quick_comments = self::get_quick_comments( $quick_comment_type );
         ?>
         <!-- Box -->
         <table class="widefat striped">
             <thead>
                 <tr>
-                    <th>Header</th>
+                    <th>Quick Comments</th>
+                    <th>Type</th>
                 </tr>
             </thead>
             <tbody>
+                <?php if( ! $quick_comments ) : ?>
                 <tr>
-                    <td>
-                        Content
+                    <td colspan="2">
+                        <i>No quick comments created yet</i>
                     </td>
                 </tr>
+            <?php endif; ?>
+                <?php foreach( $quick_comments as $quick_comment => $val ) : ?>
+                <tr>
+                    <td>
+                        <?php echo esc_html( $val['comment_content'] ); ?>
+                    </td>
+                    <td>
+                        <?php echo esc_html( $val['comment_type'] ); ?>
+                    </td>
+                </tr>
+                <?php endforeach; ?>
             </tbody>
         </table>
         <br>
@@ -154,7 +200,7 @@ class Disciple_Tools_Plugin_Starter_Template_Tab_General {
         <?php
     }
 
-    public function right_column() {
+    public function right_column( $quick_comment_type = 'all' ) {
         ?>
         <!-- Box -->
         <table class="widefat striped">
@@ -176,81 +222,3 @@ class Disciple_Tools_Plugin_Starter_Template_Tab_General {
         <?php
     }
 }
-
-
-/**
- * Class Disciple_Tools_Plugin_Starter_Template_Tab_Second
- */
-class Disciple_Tools_Plugin_Starter_Template_Tab_Second {
-    public function content() {
-        ?>
-        <div class="wrap">
-            <div id="poststuff">
-                <div id="post-body" class="metabox-holder columns-2">
-                    <div id="post-body-content">
-                        <!-- Main Column -->
-
-                        <?php $this->main_column() ?>
-
-                        <!-- End Main Column -->
-                    </div><!-- end post-body-content -->
-                    <div id="postbox-container-1" class="postbox-container">
-                        <!-- Right Column -->
-
-                        <?php $this->right_column() ?>
-
-                        <!-- End Right Column -->
-                    </div><!-- postbox-container 1 -->
-                    <div id="postbox-container-2" class="postbox-container">
-                    </div><!-- postbox-container 2 -->
-                </div><!-- post-body meta box container -->
-            </div><!--poststuff end -->
-        </div><!-- wrap end -->
-        <?php
-    }
-
-    public function main_column() {
-        ?>
-        <!-- Box -->
-        <table class="widefat striped">
-            <thead>
-                <tr>
-                    <th>Header</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>
-                        Content
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-        <br>
-        <!-- End Box -->
-        <?php
-    }
-
-    public function right_column() {
-        ?>
-        <!-- Box -->
-        <table class="widefat striped">
-            <thead>
-                <tr>
-                    <th>Information</th>
-                </tr>
-            </thead>
-            <tbody>
-            <tr>
-                <td>
-                    Content
-                </td>
-            </tr>
-            </tbody>
-        </table>
-        <br>
-        <!-- End Box -->
-        <?php
-    }
-}
-
