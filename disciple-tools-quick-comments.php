@@ -135,6 +135,29 @@ class Disciple_Tools_Quick_Comments {
         }
 
         add_action( 'dt_comment_action_quick_action', [ $this, 'quick_comments_menu' ] );
+        add_action( 'dt_modal_help_text', [ $this, 'quick_comments_modal_help_text' ] );
+        add_action( 'disciple-tools-quick-comments', [ $this, 'add_make_quick_comment_link'] );
+    }
+
+    /** Hooks help text into modal-help.php */
+    public function quick_comments_modal_help_text(){
+        ?>
+        <div class="help-section" id="quick-comments-help-text" style="display: none">
+                <h3>Quick Comments Buttons</h3>
+                <p>These quick comments buttons are here to aid you in updating comments faster and in a descriptive fashion.</p>
+                <p>You can create a posted comment into a quick comment by clicking on the \'create quick comment\' link next to it.</p>
+        </div>
+        <?php
+    }
+
+    public function add_make_quick_comment_link(){
+        ?>
+        <script>
+            jQuery(function($) {
+                $('.open-edit-comment').prepend('<a class="make-quick-comment" data-id="xxx" data-type="comment" style="margin-right:5px"><img src="' <?php echo get_template_directory_uri(); ?> '/dt-assets/images/$img_file">edit</a>')
+            }
+         </script>
+        <?php
     }
 
     public function get_quick_comments( $post_type ){
@@ -175,13 +198,18 @@ class Disciple_Tools_Quick_Comments {
                         <a class="button menu-white-dropdown-arrow" style="background-color: #00897B; color: white;" role="menuitem">
                             Quick Comments</a>
                         <ul class="menu is-dropdown-submenu submenu first-sub vertical" style="width: max-content;" data-submenu="" role="menubar">
-                                                            <li class="quick-action-menu is-submenu-item is-dropdown-submenu-item" data-id="quick_button_no_answer" role="none">
-                                        <a role="menuitem">'.  esc_html($quick_comment) .'</a>
+                                                            <li class="quick-action-menu is-submenu-item is-dropdown-submenu-item" data-comment="'. esc_html($quick_comment) .'" role="none">
+                                        <a role="menuitem">' .  esc_html($quick_comment) . '</a>
                                                         </ul>
                     </li>';
                     }
                 }
-            $menu .= '</ul>';
+            $menu .= '</ul>
+            <button class="help-button" data-section="quick-comments-help-text">
+                <img class="help-icon"
+                     src="' . esc_html( get_template_directory_uri() ) . '/dt-assets/images/help.svg"/>
+            </button>
+            ';
         echo $menu;
     }
 
