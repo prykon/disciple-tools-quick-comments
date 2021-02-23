@@ -65,6 +65,7 @@ function disciple_tools_quick_comments() {
 
 }
 add_action( 'after_setup_theme', 'disciple_tools_quick_comments', 20 );
+//agregar acá el hook que corre el js que mete los links?
 
 /**
  * Singleton class for setting up the plugin.
@@ -83,6 +84,7 @@ class Disciple_Tools_Quick_Comments {
     }
 
     private function __construct() {
+
         $is_rest = dt_is_rest();
         /**
          * @todo Decide if you want to use the REST API example
@@ -136,7 +138,6 @@ class Disciple_Tools_Quick_Comments {
 
         add_action( 'dt_comment_action_quick_action', [ $this, 'quick_comments_menu' ] );
         add_action( 'dt_modal_help_text', [ $this, 'quick_comments_modal_help_text' ] );
-        add_action( 'disciple-tools-quick-comments', [ $this, 'add_make_quick_comment_link'] );
     }
 
     /** Hooks help text into modal-help.php */
@@ -147,16 +148,44 @@ class Disciple_Tools_Quick_Comments {
                 <p>These quick comments buttons are here to aid you in updating comments faster and in a descriptive fashion.</p>
                 <p>You can create a posted comment into a quick comment by clicking on the \'create quick comment\' link next to it.</p>
         </div>
-        <?php
+        <?php self::add_make_quick_comment_link();
     }
 
     public function add_make_quick_comment_link(){
         ?>
         <script>
-            jQuery(function($) {
-                $('.open-edit-comment').prepend('<a class="make-quick-comment" data-id="xxx" data-type="comment" style="margin-right:5px"><img src="' <?php echo get_template_directory_uri(); ?> '/dt-assets/images/$img_file">edit</a>')
-            }
+            function doStuff( commentID ){
+                let postId = window.detailsSettings.post_id
+                let postType = window.detailsSettings.post_type
+                let comment_content = $('.comment-bubble.' + commentID).find('.comment-text')[0].innerText
+                let commentType = $('.open-edit-comment[data-id="' + commentID + '"').data('type')
+                if (commentType == 'comment'){
+                    commentType = 'qc_' + postType
+                } else {
+                    commentType = 'comment'
+                }
+                window.API.update_comment(postType, postId, commentID, comment_content, commentType)
+                }
          </script>
+        <script>
+            setTimeout(
+                function(){
+                    
+                    $('.open-delete-comment').each(function(i,item){
+                        let commentID = $(item).data('id')
+                        let commentType = $('.open-edit-comment[data-id="' + commentID + '"').data('type')
+                        console.log(commentType)
+                        let quickText;
+                        if (commentType == 'comment'){
+                            quickText = 'quicken'
+                        } else {
+                            quickText = 'un-quicken'
+                        }
+                        $(item).after(`<a href="javascript:doStuff(` + $(item).data('id') + `)" class="open-quicken-comment ` + $(item).data('id') + `" data-id="` + $(item).data('id') + `" data-comment-type="` + $(item).data('comment-type') + `" title="create a quick comment from this comment"><img src="${_.escape( window.wpApiShare.template_dir )}/dt-assets/images/view-comments.svg"> ` + quickText + `</a>`)
+                    })
+                }, 2000)
+        </script>
+        
         <?php
     }
 
@@ -173,6 +202,7 @@ class Disciple_Tools_Quick_Comments {
         $results = $wpdb->get_col( $query );
         return $results;
     }
+
 
     public function quick_comments_menu( $post_type = '' ){
         $quick_comments = self::get_quick_comments( 'contacts' );
