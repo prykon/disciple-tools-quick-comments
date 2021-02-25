@@ -154,7 +154,8 @@ class Disciple_Tools_Quick_Comments {
     public function add_make_quick_comment_link(){
         ?>
         <script>
-            function doStuff( commentID ){
+            /* Function that quickens or un-quickens comments*/
+            function quickenComment( commentID ){
                 let postId = window.detailsSettings.post_id
                 let postType = window.detailsSettings.post_type
                 let comment_content = $('.comment-bubble.' + commentID).find('.comment-text')[0].innerText
@@ -167,21 +168,39 @@ class Disciple_Tools_Quick_Comments {
                 window.API.update_comment(postType, postId, commentID, comment_content, commentType)
                 }
          </script>
+
+         
+
+
         <script>
+            // function test(){
+            //     let postId = window.detailsSettings.post_id
+            //     let postType = window.detailsSettings.post_type
+            //     let comments = window.API.get_comments(postType, postId)
+
+            //     window.API = {get_comments: (post_type, postId) => makeRequestOnPosts('GET', `${postType}/${postId}`).then(data => {
+            //         let comment = data.comment
+            //         console.log(comment)
+            //     }}
+            // }
+
+            // test()
+        </script>
+
+        <script>
+            /* Waits for comments to finish loading and then loads (un)quicken links */
             setTimeout(
                 function(){
-                    
                     $('.open-delete-comment').each(function(i,item){
                         let commentID = $(item).data('id')
                         let commentType = $('.open-edit-comment[data-id="' + commentID + '"').data('type')
-                        console.log(commentType)
                         let quickText;
                         if (commentType == 'comment'){
                             quickText = 'quicken'
                         } else {
                             quickText = 'un-quicken'
                         }
-                        $(item).after(`<a href="javascript:doStuff(` + $(item).data('id') + `)" class="open-quicken-comment ` + $(item).data('id') + `" data-id="` + $(item).data('id') + `" data-comment-type="` + $(item).data('comment-type') + `" title="create a quick comment from this comment"><img src="${_.escape( window.wpApiShare.template_dir )}/dt-assets/images/view-comments.svg"> ` + quickText + `</a>`)
+                        $(item).after(`<a href="javascript:quickenComment(` + $(item).data('id') + `)" class="open-quicken-comment ` + $(item).data('id') + `" data-id="` + $(item).data('id') + `" data-comment-type="` + $(item).data('comment-type') + `" title="create a quick comment from this comment"><img src="${_.escape( window.wpApiShare.template_dir )}/dt-assets/images/view-comments.svg"> ` + quickText + `</a>`)
                     })
                 }, 2000)
         </script>
@@ -196,8 +215,9 @@ class Disciple_Tools_Quick_Comments {
             SELECT DISTINCT comment_content
             FROM $wpdb->comments
             WHERE comment_type = %s
+            AND user_id = %d
             ORDER BY comment_content ASC;
-        ", 'qc_' . $post_type );
+        ", 'qc_' . $post_type, get_current_user_id());
 
         $results = $wpdb->get_col( $query );
         return $results;
@@ -206,41 +226,60 @@ class Disciple_Tools_Quick_Comments {
 
     public function quick_comments_menu( $post_type = '' ){
         $quick_comments = self::get_quick_comments( 'contacts' );
-        $menu = '
-        <ul class="dropdown menu" data-dropdown-menu="ev6bdj-dropdown-menu" style="display: inline-block" role="menubar">';
-                if ( ! $quick_comments ){
-                    /** If there are no quick comments show a message in the menu */
-                    $menu .= '<li style="border-radius: 5px" role="none" class="is-dropdown-submenu-parent opens-right" aria-haspopup="true" aria-label="
-                            Quick Comments" data-is-click="false">
-                        <a class="button menu-white-dropdown-arrow" style="background-color: #00897B; color: white;" role="menuitem">
-                            Quick Comments</a>
-                        <ul class="menu is-dropdown-submenu submenu first-sub vertical" style="width: max-content;" data-submenu="" role="menubar">
-                                                            <li class="quick-action-menu is-submenu-item is-dropdown-submenu-item" data-type="qc_contacts" role="none">
-                                        <a role="menuitem">
-                                            <i>'. esc_html( 'no quick comments created' ) .'</i>
-                                        </a>
-                                                        </ul>
-                    </li>';
-                } else {
-                    foreach ( $quick_comments as $quick_comment ) {
-                        $menu .= '<li style="border-radius: 5px" role="none" class="is-dropdown-submenu-parent opens-right" aria-haspopup="true" aria-label="
-                            Quick Comments" data-is-click="false">
-                        <a class="button menu-white-dropdown-arrow" style="background-color: #00897B; color: white;" role="menuitem">
-                            Quick Comments</a>
-                        <ul class="menu is-dropdown-submenu submenu first-sub vertical" style="width: max-content;" data-submenu="" role="menubar">
-                                                            <li class="quick-action-menu is-submenu-item is-dropdown-submenu-item" data-comment="'. esc_html($quick_comment) .'" role="none">
-                                        <a role="menuitem">' .  esc_html($quick_comment) . '</a>
-                                                        </ul>
-                    </li>';
-                    }
-                }
-            $menu .= '</ul>
+        $menu = '<ul class="dropdown menu" data-dropdown-menu style="display: inline-block">
+                <li style="border-radius: 5px">
+                    <a class="button menu-white-dropdown-arrow"
+                       style="background-color: #00897B; color: white;">Quick Comments';
+        $menu .= '</a>
+                    <ul class="menu is-dropdown-submenu" style="width: max-content">';
+                        if(!$quick_comments){
+                            $menu .='
+                                    <li class="quick-comment-menu" data-id="' . esc_attr( $field ) .'">
+                                        <a><i>no quick comments created yet for ' . $post_type . ' </i></a>
+                                    </li>';
+                                } else {
+                                    foreach ( $quick_comments as $quick_comment) {
+                                        $menu .='
+                                            <li class="quick-comment-menu" data-id="' . esc_attr( $field ) .'">
+                                                <a data-type="quick-comment">' . esc_html( $quick_comment ) . '</a>
+                                            </li>';
+                                        }
+                                }
+                                $menu .= '
+                    </ul>
+                </li>
+            </ul>
             <button class="help-button" data-section="quick-comments-help-text">
                 <img class="help-icon"
                      src="' . esc_html( get_template_directory_uri() ) . '/dt-assets/images/help.svg"/>
             </button>
             ';
         echo $menu;
+?>
+
+    <script>
+        function post_quick_comment(commentInput) {
+            let postId = window.detailsSettings.post_id
+            let postType = window.detailsSettings.post_type
+            let commentType = 'qc_' + postType
+            let commentButton = jQuery("#add-comment-button")
+            
+                window.API.post_comment(postType, postId, commentInput, commentType ).then(data => {
+            }).catch(err => {
+                  console.log("error")
+                  console.log(err)
+                  jQuery("#errors").append(err.responseText)
+                })
+          }
+    </script>
+
+    <script>
+        $("a[data-type='quick-comment']").on('click', function(){
+            post_quick_comment(this.innerText)
+        })
+    </script>
+
+<?php
     }
 
     /**
@@ -352,6 +391,10 @@ if ( ! function_exists( 'disciple_tools_quick_comments_hook_admin_notice' ) ) {
                         })
                     });
                 });
+            </script>
+
+            <script>
+                
             </script>
         <?php }
     }
