@@ -147,7 +147,7 @@ class Disciple_Tools_Quick_Comments_Tab {
         if ( $quick_comment_type == 'all' ){
 
             $query = "
-                SELECT comment_content, REPLACE(comment_type, 'qc_', '') AS comment_type
+                SELECT DISTINCT comment_content, REPLACE(comment_type, 'qc_', '') AS comment_type
                 FROM $wpdb->comments
                 WHERE comment_type LIKE 'qc_%'
                 ORDER BY comment_content ASC;
