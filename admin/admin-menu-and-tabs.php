@@ -103,25 +103,8 @@ class Disciple_Tools_Quick_Comments_Menu {
         //             ]
         //     },
         // );
-
-        register_rest_route(
-            # http://localhost:10003/wp-json/disciple_tools_quick_comments/v1/test_dario/
-            $namespace, '/test_dario', [
-                'methods'  => WP_REST_Request::READABLE,
-                'callback' => [ $this, 'test_dario' ],
-                //'permission_callback'  => function( WP_REST_Request $request ) {
-                    //return $this->has_permission();
-                //},
-            ]
-        );
-
-
     }
 
-    public function test_dario( $request ){
-        $redirect_url = "http://www.google.com";
-        header("Location: $redirect_url");
-    }
     /**
      * Loads the subnav page
      * @since 0.1

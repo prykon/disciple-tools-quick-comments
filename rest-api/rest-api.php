@@ -18,6 +18,9 @@ class Disciple_Tools_Quick_Comments_Endpoints
      */
     //See https://github.com/DiscipleTools/disciple-tools-theme/wiki/Site-to-Site-Link for outside of wordpress authentication
 
+
+
+
     public function add_api_routes() {
         $namespace = 'disciple_tools_quick_comments/v1';
 
@@ -27,37 +30,89 @@ class Disciple_Tools_Quick_Comments_Endpoints
                 'callback' => [ $this, 'get_quick_comments' ],
             ]
         );
+
+        register_rest_route(
+            $namespace, '/unquicken_comment/(?P<comment_id>\d+)', [
+                'methods' => 'GET',
+                'callback' => [ $this, 'unquicken_comment'],
+            ]
+        );
     }
+
+
+
+
 
     public function get_quick_comments( WP_REST_Request $request) {
         global $wpdb;
+        
         $params = $request->get_params();
         $post_type = $request['comment_type'];
+        
         $query = $wpdb->prepare( "
             SELECT comment_content, ANY_VALUE( comment_id )
             FROM $wpdb->comments
             WHERE comment_type = %s
             AND user_id = %d
             GROUP BY comment_content
-            ORDER BY comment_content ASC;
-        ", 'qc_' . $post_type, /*get_current_user_id()*/ 2);
+            ORDER BY comment_content ASC;",
+            esc_sql( 'qc_' . $post_type ),
+            esc_sql( get_current_user_id() )
+        );
 
         $results = $wpdb->get_col( $query );
         return $results;
     }
 
-    public function unquicken_comment( $comment_ID ) {
-        global $wpdb;
 
-        $query = $wpdb->prepare("
+
+
+
+    public function unquicken_comment( WP_REST_Request $request ) {
+        global $wpdb;
+        
+        $params = $request->get_params();
+        
+        if ( !$params[ 'comment_id' ] ) {
+            return 'error: comment_id parameter missing';
+        } else {
+            $comment_id = $params[ 'comment_id' ];
+        }
+
+        // $query = $wpdb->prepare("
+        //     UPDATE $wpdb->comments
+        //     SET comment_type = 'comment'
+        //     WHERE comment_ID = %d
+        //     AND comment_type = %s;",
+        //     esc_sql( $comment_id ),
+        //     esc_sql( $comment_type )
+        // );
+        
+        $query_get_comment_content = $wpdb->prepare("
+            SELECT content_comment
+            FROM $wpdb->comments
+            WHERE comment_ID = %d ;",
+            esc_sql( $comment_id )
+        );
+
+
+        $comment_content = $wpdb->query( $query );
+
+        $query_update_comment_type = $wpdb->prepare("
             UPDATE $wpdb->comments
             SET comment_type = 'comment'
-            WHERE comment_id = %i;
-            ", esq_sql( $comment_id ) );
-        $response = $wpdb->get_results( $query, ARRAY_A );
+            WHERE content_comment = %s ;",
+            esc_sql( $comment_content )
+        );
+
+        $response = $wpdb->query( $query_update_comment_type );
         return $response;
     }
  
+
+
+
+
     private static $_instance = null;
     public static function instance() {
         if ( is_null( self::$_instance ) ) {
