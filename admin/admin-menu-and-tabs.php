@@ -15,16 +15,47 @@ class Disciple_Tools_Quick_Comments_Menu {
      * This helps ensure that even if a new post type is created by a plugin,
      * it can still have Quick Comment compatibility.
      */
-    public static function get_all_quick_comment_types(){
+    public static function get_all_quick_comment_types() {
         global $wpdb;
         $query = "
-            SELECT DISTINCT REPLACE(comment_type, 'qc_', '')
+            SELECT DISTINCT REPLACE( comment_type, 'qc_', '' )
             FROM $wpdb->comments
             WHERE comment_type LIKE 'qc_%'
-            ORDER BY comment_type ASC;
-        ";
+            ORDER BY comment_type ASC;";
+
         $results = $wpdb->get_col( $query );
         return $results;
+    }
+
+    public static function get_quick_comment_by_id( int $comment_id, int $user_id ) {
+        global $wpdb;
+        $query = $wpdb->prepare( "
+            SELECT comment_content, comment_type
+            FROM $wp->comments
+            WHERE comment_id = %i
+            AND user = %i;",
+
+            esq_sql( $comment_id ) );
+
+        $response = $wpdb->get_results( $query, ARRAY_A);
+        return $response;
+    }
+
+    public function unquicken_comment( int $comment_id, int $user_id ) {
+        global $wpdb;
+        $query = $wpdb->prepare( "
+            UPDATE $wpdb->comments
+            SET comment_type = 'comment'
+            WHERE comment_id = %i
+            AND user_id = %i;",
+
+            esq_sql( $comment_id ),
+            esq_sql( $user_id )
+        );
+
+        $response = $wpdb->get_results( $query, ARRAY_A );
+        return $response;
+        // Add an error response if a user doesn't have permission to un-quicken a comment.
     }
 
     /**
@@ -52,10 +83,45 @@ class Disciple_Tools_Quick_Comments_Menu {
     public function __construct() {
 
         add_action( "admin_menu", array( $this, "register_menu" ) );
+        add_action( "rest_api_init", [ $this, 'add_api_routes' ] );
 
     } // End __construct()
 
+    public function add_api_routes() {
+        $namespace = 'disciple_tools_quick_comments/v1';
 
+        // register_rest_route(
+        //     $namespace, '/(?P<comment_content>)/(?P<comment_type>/(?P<user_id>\d+)/))', [
+        //             [
+        //                 "methods"  => "POST",
+        //                 "callback" => [ $this, 'unquicken_comment' ],
+        //                 "args" => [],
+        //                     "comment_content" => $arg_schemas["comment_content"],
+        //                     'comment_type' => $arg_schemas["comment_type"]
+        //                     "user_id" => $arg_schemas["user_id"],
+        //                 ]
+        //             ]
+        //     },
+        // );
+
+        register_rest_route(
+            # http://localhost:10003/wp-json/disciple_tools_quick_comments/v1/test_dario/
+            $namespace, '/test_dario', [
+                'methods'  => WP_REST_Request::READABLE,
+                'callback' => [ $this, 'test_dario' ],
+                //'permission_callback'  => function( WP_REST_Request $request ) {
+                    //return $this->has_permission();
+                //},
+            ]
+        );
+
+
+    }
+
+    public function test_dario( $request ){
+        $redirect_url = "http://www.google.com";
+        header("Location: $redirect_url");
+    }
     /**
      * Loads the subnav page
      * @since 0.1
@@ -76,7 +142,7 @@ class Disciple_Tools_Quick_Comments_Menu {
     public function content() {
 
         if ( !current_user_can( 'manage_dt' ) ) { // manage dt is a permission that is specific to Disciple Tools and allows admins, strategists and dispatchers into the wp-admin
-            wp_die( 'You do not have sufficient permissions to access this page.' );
+           wp_die( 'You do not have sufficient permissions to access this page.' );
         }
 
         $tabs = self::get_all_quick_comment_types();
@@ -142,25 +208,45 @@ class Disciple_Tools_Quick_Comments_Tab {
         <?php
     }
 
+    /**
+     * Get distinct values for the comment_content / comment_type combination
+     * and a comment_id for referencing the exact comment_content in future comment_type updates
+     **/
     public function get_quick_comments( $quick_comment_type = 'all' ){
         global $wpdb;
         if ( $quick_comment_type == 'all' ){
 
             $query = "
-                SELECT comment_content, REPLACE(comment_type, 'qc_', '') AS comment_type
-                FROM $wpdb->comments
-                WHERE comment_type LIKE 'qc_%'
-                ORDER BY comment_content ASC;
-                ";
+            SELECT
+                comment_content,
+                REPLACE( comment_type, 'qc_', '' ) AS comment_type,
+                ANY_VALUE( comment_id ) AS comment_id
+            FROM
+                $wp->comments
+            WHERE
+                comment_type LIKE 'qc_%'
+            GROUP BY
+                comment_content, comment_type
+            ORDER BY
+                comment_content;";
         } else {
             $query = $wpdb->prepare("
-                SELECT DISTINCT comment_content, REPLACE(comment_type, 'qc_', '') AS comment_type
-                FROM $wpdb->comments
-                WHERE comment_type = %s
-                ORDER BY comment_content ASC;"
+                SELECT
+                    comment_content,
+                    REPLACE(comment_type, 'qc_', '') AS comment_type,
+                    ANY_VALUE( comment_id ) AS comment_id
+                FROM
+                    $wpdb->comments
+                WHERE
+                    comment_type = %s
+                GROUP BY
+                    comment_content, comment_type
+                ORDER BY
+                    comment_content ASC;"
                 , 'qc_' . $quick_comment_type );
         }
         $results = $wpdb->get_results( $query, ARRAY_A );
+       
         return $results;
     }
 
@@ -173,17 +259,19 @@ class Disciple_Tools_Quick_Comments_Tab {
                 <tr>
                     <th>Quick Comments</th>
                     <th>Type</th>
+                    <th style="text-align: right;">Action</th>
                 </tr>
             </thead>
             <tbody>
                 <?php if( ! $quick_comments ) : ?>
                 <tr>
-                    <td colspan="2">
+                    <td colspan="3">
                         <i>No quick comments created yet</i>
                     </td>
                 </tr>
             <?php endif; ?>
-                <?php foreach( $quick_comments as $quick_comment => $val ) : ?>
+                <?php 
+                foreach( $quick_comments as $quick_comment => $val ) : ?>
                 <tr>
                     <td>
                         <?php echo esc_html( $val['comment_content'] ); ?>
@@ -191,12 +279,48 @@ class Disciple_Tools_Quick_Comments_Tab {
                     <td>
                         <?php echo esc_html( $val['comment_type'] ); ?>
                     </td>
+                    <td style="text-align: right;">
+                        <a href="javascript:void(0);" class="unquicken-comment" data-comment-type="<?php echo esc_html( $val['comment_type'] ); ?>">un-quicken</a>
+                    </td>
                 </tr>
                 <?php endforeach; ?>
             </tbody>
         </table>
-        <br>
         <!-- End Box -->
+                        <!-- How do they call a post request on click?
+                            1. declare window.api (not entirely necessary)
+                            2. declare api endpoint
+                            3. call api endpoint -->
+        <script type="text/javascript">
+            jQuery(document).ready(function($) {
+
+                // jQuery(document).on('click', '.unquicken-comment', function (){
+                //         let commentType = jQuery(this).data('comment-type')
+                //         let commentContent = jQuery(this).innerText
+                //         let userId = window.userSettings.uid
+                        
+                //         //window.API.unquicken_comment(commentType, commentContent, userId).then(quickComments=>{
+                //         window.API.test_dario().then(qcuickComments=>{
+                //             window.location.reload()
+                //         }).catch(err => { console.error(err) })
+                //     })
+                        //$(this).toggleClass('loading')
+                        jQuery(document).on('click', '.unquicken-comment', function (){
+                            let options = {
+                                type: 'GET',
+                                contentType: 'application/json; charset=utf-8',
+                                dataType: 'json',
+                                url: `/wp-admin/disciple_tools_quick_comments/v1/test_dario`,
+                                beforeSend: xhr => {
+                                    xhr.setRequestHeader('X-WP-Nonce', '<?php echo esc_attr( wp_create_nonce( 'wp_rest' ) ) ?>');
+                                }
+                            }
+
+                            return jQuery.ajax(options)
+
+                        })
+            })
+        </script>
         <?php
     }
 
