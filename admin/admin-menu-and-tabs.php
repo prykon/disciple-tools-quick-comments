@@ -27,37 +27,6 @@ class Disciple_Tools_Quick_Comments_Menu {
         return $results;
     }
 
-    public static function get_quick_comment_by_id( int $comment_id, int $user_id ) {
-        global $wpdb;
-        $query = $wpdb->prepare( "
-            SELECT comment_content, comment_type
-            FROM $wp->comments
-            WHERE comment_id = %i
-            AND user = %i;",
-
-            esq_sql( $comment_id ) );
-
-        $response = $wpdb->get_results( $query, ARRAY_A);
-        return $response;
-    }
-
-    public function unquicken_comment( int $comment_id, int $user_id ) {
-        global $wpdb;
-        $query = $wpdb->prepare( "
-            UPDATE $wpdb->comments
-            SET comment_type = 'comment'
-            WHERE comment_id = %i
-            AND user_id = %i;",
-
-            esq_sql( $comment_id ),
-            esq_sql( $user_id )
-        );
-
-        $response = $wpdb->get_results( $query, ARRAY_A );
-        return $response;
-        // Add an error response if a user doesn't have permission to un-quicken a comment.
-    }
-
     /**
      * Disciple_Tools_Quick_Comments_Menu Instance
      *
@@ -83,27 +52,9 @@ class Disciple_Tools_Quick_Comments_Menu {
     public function __construct() {
 
         add_action( "admin_menu", array( $this, "register_menu" ) );
-        add_action( "rest_api_init", [ $this, 'add_api_routes' ] );
+        add_action( "rest_api_init", [ 'rest-api', 'add_api_routes' ] ); // @todo check if 'rest-api' should be $this
 
     } // End __construct()
-
-    public function add_api_routes() {
-        $namespace = 'disciple_tools_quick_comments/v1';
-
-        // register_rest_route(
-        //     $namespace, '/(?P<comment_content>)/(?P<comment_type>/(?P<user_id>\d+)/))', [
-        //             [
-        //                 "methods"  => "POST",
-        //                 "callback" => [ $this, 'unquicken_comment' ],
-        //                 "args" => [],
-        //                     "comment_content" => $arg_schemas["comment_content"],
-        //                     'comment_type' => $arg_schemas["comment_type"]
-        //                     "user_id" => $arg_schemas["user_id"],
-        //                 ]
-        //             ]
-        //     },
-        // );
-    }
 
     /**
      * Loads the subnav page
@@ -197,21 +148,17 @@ class Disciple_Tools_Quick_Comments_Tab {
      **/
     public function get_quick_comments( $quick_comment_type = 'all' ){
         global $wpdb;
-        if ( $quick_comment_type == 'all' ){
 
+        if ( $quick_comment_type === 'all' ){
             $query = "
-            SELECT
-                comment_content,
-                REPLACE( comment_type, 'qc_', '' ) AS comment_type,
-                ANY_VALUE( comment_id ) AS comment_id
-            FROM
-                $wp->comments
-            WHERE
-                comment_type LIKE 'qc_%'
-            GROUP BY
-                comment_content, comment_type
-            ORDER BY
-                comment_content;";
+                SELECT
+                    comment_content,
+                    REPLACE( comment_type, 'qc_', '' ) AS comment_type,
+                    ANY_VALUE( comment_id ) AS comment_id
+                FROM $wpdb->comments
+                WHERE comment_type LIKE 'qc_%'
+                GROUP BY comment_content, comment_type
+                ORDER BY comment_content;";
         } else {
             $query = $wpdb->prepare("
                 SELECT
@@ -229,7 +176,6 @@ class Disciple_Tools_Quick_Comments_Tab {
                 , 'qc_' . $quick_comment_type );
         }
         $results = $wpdb->get_results( $query, ARRAY_A );
-       
         return $results;
     }
 
