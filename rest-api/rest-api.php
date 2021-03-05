@@ -44,6 +44,7 @@ class Disciple_Tools_Quick_Comments_Endpoints
 
     // Get the quick comments for the dropdown menu
     public function get_quick_comments( WP_REST_Request $request) {
+        // @todo Show only quick comments created by current user
         global $wpdb;
         
         $params = $request->get_params();
@@ -53,11 +54,9 @@ class Disciple_Tools_Quick_Comments_Endpoints
             SELECT comment_content, ANY_VALUE( comment_id )
             FROM $wpdb->comments
             WHERE comment_type = %s
-            /* AND user_id = %d */
             GROUP BY comment_content
             ORDER BY comment_content ASC;",
-            esc_sql( 'qc_' . $post_type ),
-            // esc_sql( get_current_user() )
+            esc_sql( 'qc_' . $post_type )
         );
 
         $results = $wpdb->get_col( $query );

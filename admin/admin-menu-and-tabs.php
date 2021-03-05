@@ -4,7 +4,7 @@ if ( ! defined( 'ABSPATH' ) ) { exit; } // Exit if accessed directly
 /**
  * Class Disciple_Tools_Quick_Comments_Menu
  */
-class Disciple_Tools_Quick_Comments_Menu {
+class Disciple_Tools_Quick_Comments_Menu extends Disciple_Tools_Abstract_Menu_Base {
 
     public $token = 'disciple_tools_quick_comments';
 
@@ -17,6 +17,7 @@ class Disciple_Tools_Quick_Comments_Menu {
      */
     public static function get_all_quick_comment_types() {
         global $wpdb;
+
         $query = "
             SELECT DISTINCT REPLACE( comment_type, 'qc_', '' )
             FROM $wpdb->comments
@@ -50,10 +51,7 @@ class Disciple_Tools_Quick_Comments_Menu {
      * @since   0.1.0
      */
     public function __construct() {
-
         add_action( "admin_menu", array( $this, "register_menu" ) );
-        add_action( "rest_api_init", [ 'rest-api', 'add_api_routes' ] ); // @todo check if 'rest-api' should be $this
-
     } // End __construct()
 
     /**
@@ -209,46 +207,29 @@ class Disciple_Tools_Quick_Comments_Tab {
                         <?php echo esc_html( $val['comment_type'] ); ?>
                     </td>
                     <td style="text-align: right;">
-                        <a href="javascript:void(0);" class="unquicken-comment" data-comment-type="<?php echo esc_html( $val['comment_type'] ); ?>">un-quicken</a>
+                        <a href="javascript:void(0);" class="unquicken-comment" data-comment-id="<?php echo esc_html( $val['comment_id'] ); ?>">un-quicken</a>
                     </td>
                 </tr>
                 <?php endforeach; ?>
             </tbody>
         </table>
-        <!-- End Box -->
-                        <!-- How do they call a post request on click?
-                            1. declare window.api (not entirely necessary)
-                            2. declare api endpoint
-                            3. call api endpoint -->
-        <script type="text/javascript">
-            jQuery(document).ready(function($) {
-
-                // jQuery(document).on('click', '.unquicken-comment', function (){
-                //         let commentType = jQuery(this).data('comment-type')
-                //         let commentContent = jQuery(this).innerText
-                //         let userId = window.userSettings.uid
-                        
-                //         //window.API.unquicken_comment(commentType, commentContent, userId).then(quickComments=>{
-                //         window.API.test_dario().then(qcuickComments=>{
-                //             window.location.reload()
-                //         }).catch(err => { console.error(err) })
-                //     })
-                        //$(this).toggleClass('loading')
-                        jQuery(document).on('click', '.unquicken-comment', function (){
-                            let options = {
-                                type: 'GET',
-                                contentType: 'application/json; charset=utf-8',
-                                dataType: 'json',
-                                url: `/wp-admin/disciple_tools_quick_comments/v1/test_dario`,
-                                beforeSend: xhr => {
-                                    xhr.setRequestHeader('X-WP-Nonce', '<?php echo esc_attr( wp_create_nonce( 'wp_rest' ) ) ?>');
-                                }
-                            }
-
-                            return jQuery.ajax(options)
-
+        
+        <script>
+                jQuery(function($) {
+                    $( document ).on( 'click', '.unquicken-comment', function () {
+                        let commentId = $(this).data('comment-id')
+                        $.ajax({
+                        type: "GET",
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json",
+                        url: window.location.origin + '/wp-json/disciple_tools_quick_comments/v1/change_comment_type/unquicken/' + commentId,
                         })
-            })
+                        .done(function(data){
+                            //rest api call for refreshing the content
+                            window.location.reload()
+                        })
+                    })
+                })
         </script>
         <?php
     }

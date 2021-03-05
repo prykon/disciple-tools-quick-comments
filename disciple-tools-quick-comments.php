@@ -189,10 +189,11 @@ class Disciple_Tools_Quick_Comments {
                             get_toggle_links()
                         }
 
-                        get_quick_comments( postType )
+                        get_quick_comments(postType)
                         
                         $(document).on('click', 'a[data-type="quick-comment"]', function(){
                              let commentContent = $(this).text()
+                             let commentType = 'qc_' + postType
                              window.API.post_comment( postType, postId, commentContent, commentType ).then(data => {}).catch(err => {
                                   console.log("error")
                                   console.log(err)
