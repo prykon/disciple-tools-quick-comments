@@ -90,7 +90,7 @@ class Disciple_Tools_Quick_Comments {
         if ( strpos( dt_get_url_path(), 'disciple_tools_quick_comments_template' ) !== false ) {
             require_once( 'rest-api/rest-api.php' ); // adds starter rest api class
         } else {
-            require_once( 'rest-api/rest-api.php' );
+            require_once( 'rest-api/rest-api.php' ); //@todo find out why dropdown menu won't work without this else
         }
 
         
@@ -136,10 +136,6 @@ class Disciple_Tools_Quick_Comments {
             $( document ).ready(function() {
                         let postType = window.detailsSettings.post_type
                         let postId = window.detailsSettings.post_id
-
-                        
-                        
-
 
                         // Show quick comment toggle links
                         function get_toggle_links(){
@@ -263,10 +259,6 @@ class Disciple_Tools_Quick_Comments {
         <button class="help-button" data-section="quick-comments-help-text">
             <img class="help-icon" src="<?php echo esc_html( get_template_directory_uri() ); ?>/dt-assets/images/help.svg"/>
         </button>
-        
-        
-
-
 <?php
     }
 
