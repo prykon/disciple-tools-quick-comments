@@ -211,14 +211,22 @@ class Disciple_Tools_Quick_Comments {
                                 let commentComent = $('.open-edit-comment[data-id="' + commentId + '"').text()
 
                                 if (commentType == 'comment'){
-                                    commentType = 'qc_' + postType
+                                     // Quicken the comment
+                                    $.ajax({
+                                        type: "GET",
+                                        contentType: "application/json; charset=utf-8",
+                                        dataType: "json",
+                                        url: window.location.origin + '/wp-json/disciple_tools_quick_comments/v1/change_comment_type/quicken/' + commentId
+                                    })
+
+                                    get_quick_comments( postType )
                                 } else {
                                     // Unquicken a quick comment without deleting posted occurences
                                     $.ajax({
                                         type: "GET",
                                         contentType: "application/json; charset=utf-8",
                                         dataType: "json",
-                                        url: window.location.origin + '/wp-json/disciple_tools_quick_comments/v1/unquicken_comment/' + commentId
+                                        url: window.location.origin + '/wp-json/disciple_tools_quick_comments/v1/change_comment_type/unquicken/' + commentId
                                     })
 
                                     get_quick_comments( postType )
