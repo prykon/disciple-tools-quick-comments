@@ -167,7 +167,7 @@ class Disciple_Tools_Quick_Comments {
                             type: "GET",
                             contentType: "application/json; charset=utf-8",
                             dataType: "json",
-                            url: window.location.origin + '/wp-json/disciple_tools_quick_comments/v1/quick_comments/' + postType,
+                            url: window.location.origin + '/wp-json/disciple_tools_quick_comments/v1/get_quick_comments/' + postType,
                             })
                             .done(function(data){
                                 //First clear current links so the new response doesn't get appended to them

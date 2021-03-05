@@ -25,7 +25,7 @@ class Disciple_Tools_Quick_Comments_Endpoints
         $namespace = 'disciple_tools_quick_comments/v1';
 
         register_rest_route(
-            $namespace, '/quick_comments/(?P<comment_type>\w+)', [
+            $namespace, '/get_quick_comments/(?P<post_type>\w+)', [
                 'methods'  => 'GET',
                 'callback' => [ $this, 'get_quick_comments' ],
             ]
@@ -42,22 +42,22 @@ class Disciple_Tools_Quick_Comments_Endpoints
 
 
 
-
+    // Get the quick comments for the dropdown menu
     public function get_quick_comments( WP_REST_Request $request) {
         global $wpdb;
         
         $params = $request->get_params();
-        $post_type = $request['comment_type'];
+        $post_type = $request['post_type'];
         
         $query = $wpdb->prepare( "
             SELECT comment_content, ANY_VALUE( comment_id )
             FROM $wpdb->comments
             WHERE comment_type = %s
-            AND user_id = %d
+            /* AND user_id = %d */
             GROUP BY comment_content
             ORDER BY comment_content ASC;",
             esc_sql( 'qc_' . $post_type ),
-            esc_sql( get_current_user_id() )
+            // esc_sql( get_current_user() )
         );
 
         $results = $wpdb->get_col( $query );
@@ -65,6 +65,7 @@ class Disciple_Tools_Quick_Comments_Endpoints
     }
 
 
+    // Get relevant comment information by comment_id
     public function get_comment_by_id( int $comment_id ) {
         global $wpdb;
 
@@ -86,7 +87,8 @@ class Disciple_Tools_Quick_Comments_Endpoints
     }
 
 
-    public function get_post_type_by_post_id( int $post_id ) {
+    // Get post_type for a post_id
+    public function get_post_type( int $post_id ) {
         global $wpdb;
 
         $query = $wpdb->prepare( "
@@ -125,7 +127,7 @@ class Disciple_Tools_Quick_Comments_Endpoints
 
             case 'quicken':
                 // Get post type
-                $post_type = self::get_post_type_by_post_id( (int)$data_comment[ 'comment_post_ID' ] );
+                $post_type = self::get_post_type( (int)$data_comment[ 'comment_post_ID' ] );
                 $new_comment_type = 'qc_' . $post_type;
                 break;
 
