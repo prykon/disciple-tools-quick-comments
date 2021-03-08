@@ -142,14 +142,17 @@ class Disciple_Tools_Quick_Comments {
                       let commentId = $( item ).data( 'id' )
                       let commentType = $( '.open-edit-comment[data-id="' + commentId + '"' ).data( 'type' )
                       let quickText;
+                      let commentTitle;
 
                       if ( commentType == 'comment' ) {
-                          quickText = 'quicken'
+                          quickText = 'quicken';
+                          commentTitle = 'create a quick comment from this comment';
                       } else {
-                          quickText = 'un-quicken'
+                          quickText = 'un-quicken';
+                          commentTitle = 'turn back into a regular comment';
                       }
                       $( item ).after(`
-                          <a href="javascript:void(0)" class="open-quicken-comment ` + commentId + `" data-id="` + commentId + `" data-comment-type="` + commentType + `" title="create a quick comment from this comment">
+                          <a href="javascript:void(0)" class="open-quicken-comment ` + commentId + `" data-id="` + commentId + `" data-comment-type="` + commentType + `" title="` + commentTitle + `">
                               <img src="${_.escape( window.wpApiShare.template_dir )}/dt-assets/images/view-comments.svg">
                           ` + quickText + `</a>`)
                   })
