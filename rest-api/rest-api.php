@@ -10,17 +10,6 @@ class Disciple_Tools_Quick_Comments_Endpoints
      */
     public $permissions = [ 'access_contacts', 'dt_all_access_contacts', 'view_project_metrics' ];
 
-    /**
-     * @todo define the name of the $namespace
-     * @todo define the name of the rest rout
-     * @todo defne method (CREATABLE, READABLE)
-     * @todo apply permission strategy. '__return_true' essentially skips the permission check.
-     */
-    //See https://github.com/DiscipleTools/disciple-tools-theme/wiki/Site-to-Site-Link for outside of wordpress authentication
-
-
-
-
     public function add_api_routes() {
         $namespace = 'disciple_tools_quick_comments/v1';
 
@@ -34,13 +23,10 @@ class Disciple_Tools_Quick_Comments_Endpoints
         register_rest_route(
             $namespace, '/change_comment_type/(?P<action_type>\w+)/(?P<comment_id>\d+)', [
                 'methods' => 'GET',
-                'callback' => [ $this, 'change_comment_type'],
+                'callback' => [ $this, 'change_comment_type' ],
             ]
         );
     }
-
-
-
 
     // Get the quick comments for the dropdown menu
     public function get_quick_comments( WP_REST_Request $request) {
@@ -48,7 +34,7 @@ class Disciple_Tools_Quick_Comments_Endpoints
         global $wpdb;
         
         $params = $request->get_params();
-        $post_type = $request['post_type'];
+        $post_type = $request[ 'post_type' ];
         
         $query = $wpdb->prepare( "
             SELECT comment_content, ANY_VALUE( comment_id )
@@ -104,8 +90,8 @@ class Disciple_Tools_Quick_Comments_Endpoints
     }
 
 
+    // Quickens or un-quickens a comment
     public function change_comment_type( WP_REST_Request $request ) {
-        // Quickens or un-quickens a comment
         global $wpdb;
         $params = $request->get_params();
         if ( !$params[ 'comment_id' ] ) {
@@ -118,7 +104,6 @@ class Disciple_Tools_Quick_Comments_Endpoints
         // Get comment data from its id
         $data_comment = self::get_comment_by_id( $comment_id );  
         
-
         switch( $request[ 'action_type' ] ) {
             case 'unquicken':
                 $new_comment_type = 'comment';
@@ -143,16 +128,13 @@ class Disciple_Tools_Quick_Comments_Endpoints
             
             esc_sql( $new_comment_type ),
             esc_sql( $data_comment[ 'comment_content' ] ),
-            esc_sql( $data_comment[ 'comment_type'] ),
-            esc_sql( (int)$data_comment[ 'user_id'] )
+            esc_sql( $data_comment[ 'comment_type' ] ),
+            esc_sql( (int)$data_comment[ 'user_id' ] )
         );
 
         $result = $wpdb->query( $query );
         return $result;
     }
- 
-
-
 
 
     private static $_instance = null;
@@ -165,10 +147,10 @@ class Disciple_Tools_Quick_Comments_Endpoints
     public function __construct() {
         add_action( 'rest_api_init', [ $this, 'add_api_routes' ] );
     }
-    public function has_permission(){
+    public function has_permission() {
         $pass = false;
-        foreach ( $this->permissions as $permission ){
-            if ( current_user_can( $permission ) ){
+        foreach ( $this->permissions as $permission ) {
+            if ( current_user_can( $permission ) ) {
                 $pass = true;
             }
         }
