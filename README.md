@@ -1,52 +1,37 @@
 [![Build Status](https://travis-ci.com/DiscipleTools/disciple-tools-quick-comments.svg?branch=master)](https://travis-ci.com/DiscipleTools/disciple-tools-quick-comments)
 
-# Disciple Tools - Quick Comments Plugin
+# Disciple Tools - Quick Comments
 
-__Kick start your Disciple.Tools plugin project with this template!__
-
-__This plugin is a collection of our best practices and code bases for creating Disciple.Tools plugins.__
+Tired of writing the same old comments every day? The Quick Comments plugin will help you speed up the process!
 
 ## Purpose
 
-A team, organization, or movement effort might love Disciple.Tools, but __wish it had one more thing.__
+The Quick Comments plugin allows users to post quickly without having to manually type in repetitive comments. It helps save time and encourages posting updates.
 
-We know that even though we have a common commission to make disciples of all nations, yet our assignments
-on how to do that differ greatly or even if we share similar values our stages in movement differ. Either way,
-we know we can't create everything everyone needs.
+## Usage
 
-Instead of waiting for us, you can run ahead on your own. This
-plugin includes all our best practices and starter codes for the most commonly developed extensions.
+Go into any post page (contacts, groups, etc.) and you'll see a new dropdown menu named 'Quick Comments'. At first it'll appear as empty, so you'll have to _quicken_ existing comments by clicking on the quicken button next to it.
 
-We have included starter code for a new post-type, a new REST API endpoint, a new admin page, or a new metrics chart.
-The template also provides code quality and code style tools, Travis-CI integration, multi-language support, activation and
-deactivation functions, and more. In truth it's likely more than your project needs, so we'll
-guide you through removing the elements your project does not need.)
+#### Will Do
 
-__This plugin is for developers__ who want to extend the Disciple.Tools system for their movement effort.
+- Create quick comments
+- Remove quick comments
+- Forwards compatible with new post page types
 
-## Included
-#### Framework
+#### Will Not Do
 
- 1. Wordpress code style requirements. ```phpcs.xml```
- 1. PHP Code Sniffer support (composer) @use ```/vendor/bin/phpcs``` and ```/vendor/bin/phpcbf```
- 1. Travis Continuous Integration ([travis-ci.com](https://travis-ci.com)). ```travis.yml```
- 1. Disciple.Tools Theme presence check. ```disciple_tools_quick_comments()```
- 1. Remote upgrade system for ongoing updates outside the Wordpress Directory.
- 1. Multilingual support. ```/languages``` & ```default.pot```
+- Will not delete comment when _unquickened_
+- Will not allow you to add quick comments from other post types
 
-#### Components
 
- 1. Sample admin menu and admin page with starter tabs component.
- 1. Sample post-type class and hooks.
- 1. Sample metrics chart, javascript, and REST api.
- 1. Sample REST api.
- 1. Sample site-to-site link hooks.
- 1. Sample custom tile code.
+## Requirements
 
-## Recommended
+- Disciple Tools Theme
 
-- [Composer](https://getcomposer.org/download/).
-- Disciple Tools Theme installed on a local Wordpress Server ([localwp.com](https://localwp.com) or [MAMP](https://www.mamp.info)).
+## Installing
+
+- Install as a standard Disciple.Tools/Wordpress plugin in the system Admin/Plugins area.
+- Requires the user role of Administrator.
 
 ## Contribution
 
@@ -56,6 +41,7 @@ in the [Discussions](https://github.com/DiscipleTools/disciple-tools-quick-comme
 code contributions are welcome using the [Pull Request](https://github.com/DiscipleTools/disciple-tools-quick-comments/pulls)
 system for git. For a more details on contribution see the
 [contribution guidelines](https://github.com/DiscipleTools/disciple-tools-quick-comments/blob/master/CONTRIBUTING.md).
+
 
 ## Screenshots
 
