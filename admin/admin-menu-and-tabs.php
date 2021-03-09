@@ -111,7 +111,7 @@ Disciple_Tools_Quick_Comments_Menu::instance();
  */
 class Disciple_Tools_Quick_Comments_Tab {
 
-    public function content( str $quick_comment_type = 'all' ) {
+    public function content( $quick_comment_type = 'all' ) {
         ?>
         <div class="wrap">
             <div id="poststuff">
@@ -142,7 +142,7 @@ class Disciple_Tools_Quick_Comments_Tab {
      * Get distinct values for the comment_content / comment_type combination
      * and a comment_id for referencing the exact comment_content in future comment_type updates
      **/
-    public function get_quick_comments( str $quick_comment_type = 'all' ){
+    public function get_quick_comments( $quick_comment_type = 'all' ){
         global $wpdb;
 
         if ( $quick_comment_type === 'all' ){
@@ -176,7 +176,7 @@ class Disciple_Tools_Quick_Comments_Tab {
         return $results;
     }
 
-    public function main_column( str $quick_comment_type = 'all' ) {
+    public function main_column( $quick_comment_type = 'all' ) {
         $quick_comments = self::get_quick_comments( $quick_comment_type );
         ?>
         <!-- Box -->
@@ -232,7 +232,7 @@ class Disciple_Tools_Quick_Comments_Tab {
         <?php
     }
 
-    public function right_column( str $quick_comment_type = 'all' ) {
+    public function right_column( $quick_comment_type = 'all' ) {
         ?>
         <table class="widefat striped">
             <thead>
