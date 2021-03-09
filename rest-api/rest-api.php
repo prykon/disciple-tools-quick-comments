@@ -40,9 +40,11 @@ class Disciple_Tools_Quick_Comments_Endpoints
             SELECT comment_content, ANY_VALUE( comment_id )
             FROM $wpdb->comments
             WHERE comment_type = %s
+            AND user_id = %d
             GROUP BY comment_content
             ORDER BY comment_content ASC;",
-            esc_sql( 'qc_' . $post_type )
+            esc_sql( 'qc_' . $post_type ),
+            esc_sql( 2 /* get_current_user_id() */ )
         );
 
         $results = $wpdb->get_col( $query );

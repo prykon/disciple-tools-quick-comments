@@ -5,9 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) { exit; } // Exit if accessed directly
  * Class Disciple_Tools_Quick_Comments_Menu
  */
 class Disciple_Tools_Quick_Comments_Menu extends Disciple_Tools_Abstract_Menu_Base {
-
     public $token = 'disciple_tools_quick_comments';
-
     private static $_instance = null;
 
     /**
