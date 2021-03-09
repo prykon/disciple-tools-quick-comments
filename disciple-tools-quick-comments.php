@@ -183,13 +183,14 @@ class Disciple_Tools_Quick_Comments {
           $( document ).on( 'click', 'a[data-type="quick-comment"]', function() {
            let postId = window.detailsSettings.post_id;
            let postType = window.detailsSettings.post_type;
-           let commentContent = $( this ).text()
-           let commentType = 'qc_' + postType
-           window.API.post_comment( postType, postId, commentContent, commentType ).then( data => {} ).catch( err => {
-                console.log( "error" )
-                console.log( err )
-                jQuery( '#errors' ).append( err.responseText)
-              } )
+           let commentContent = $( this ).text();
+           let commentType = 'qc_' + postType;
+           window.API.post_comment( postType, postId, commentContent, commentType )
+           .then( data => {} ).catch( err => {
+            console.log( "error" );
+            console.log( err );
+            jQuery( '#errors' ).append( err.responseText);
+          } );
            
            get_quick_comments( postType );
           })
@@ -200,23 +201,24 @@ class Disciple_Tools_Quick_Comments {
             let postType = window.detailsSettings.post_type;
             let commentId = $( this ).data( 'id' );
             let commentType = $( '.open-edit-comment[data-id="' + commentId + '"' ).data( 'type' );
+            let api_path = '/wp-json/disciple_tools_quick_comments/v1/change_comment_type';
             let quickText;
 
             if ( commentType == 'comment' ) {
-                // Quicken the comment
-                $.ajax( {
-                  type: "GET",
-                  contentType: "application/json; charset=utf-8",
-                  dataType: "json",
-                  url: window.location.origin + '/wp-json/disciple_tools_quick_comments/v1/change_comment_type/quicken/' + commentId
-                } )
+              // Quicken the comment
+              $.ajax( {
+                type: "GET",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                url: window.location.origin + api_path + '/quicken/' + commentId
+              } )
             } else {
               // Unquicken a quick comment without deleting posted occurences
               $.ajax( {
                 type: "GET",
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
-                url: window.location.origin + '/wp-json/disciple_tools_quick_comments/v1/change_comment_type/unquicken/' + commentId
+                url: window.location.origin + api_path + '/unquicken/' + commentId
               } )
             }
 
