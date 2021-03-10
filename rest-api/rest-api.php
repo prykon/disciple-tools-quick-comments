@@ -30,12 +30,12 @@ class Disciple_Tools_Quick_Comments_Endpoints
 
     // Get the quick comments for the dropdown menu
     public function get_quick_comments( WP_REST_Request $request) {
-        // @todo Show only quick comments created by current user
         global $wpdb;
-        
+
         $params = $request->get_params();
         $post_type = $request[ 'post_type' ];
-        
+        $current_user_id = get_current_user_id();
+
         $query = $wpdb->prepare( "
             SELECT comment_content, ANY_VALUE( comment_id )
             FROM $wpdb->comments
@@ -44,7 +44,7 @@ class Disciple_Tools_Quick_Comments_Endpoints
             GROUP BY comment_content
             ORDER BY comment_content ASC;",
             esc_sql( 'qc_' . $post_type ),
-            esc_sql( 2 /* get_current_user_id() */ )
+            $current_user_id
         );
 
         $results = $wpdb->get_col( $query );
@@ -98,14 +98,14 @@ class Disciple_Tools_Quick_Comments_Endpoints
         $params = $request->get_params();
         if ( !$params[ 'comment_id' ] ) {
             return 'error: comment_id parameter missing';
-        } 
-        
+        }
+
         $comment_id = (int)$params[ 'comment_id' ];
 
 
         // Get comment data from its id
-        $data_comment = self::get_comment_by_id( $comment_id );  
-        
+        $data_comment = self::get_comment_by_id( $comment_id );
+
         switch( $request[ 'action_type' ] ) {
             case 'unquicken':
                 $new_comment_type = 'comment';
@@ -126,8 +126,8 @@ class Disciple_Tools_Quick_Comments_Endpoints
             SET comment_type = %s
             WHERE comment_content = %s
             AND comment_type = %s
-            AND user_id = %d;", 
-            
+            AND user_id = %d;",
+
             esc_sql( $new_comment_type ),
             esc_sql( $data_comment[ 'comment_content' ] ),
             esc_sql( $data_comment[ 'comment_type' ] ),
