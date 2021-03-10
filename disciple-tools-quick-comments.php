@@ -271,6 +271,30 @@ class Disciple_Tools_Quick_Comments {
         return $links_array;
     }
 
+
+    /**
+     * Method that runs only when the plugin is activated.
+     *
+     * @since  0.1
+     * @access public
+     * @return void
+     */
+    public static function activation() {
+      global $wpdb;
+
+        $response = get_site_option( 'quick_comments' );
+        
+        if( empty( $response ) ) {
+            // No previously generated quick comments; create the row
+            $wpdb->query( "
+                INSERT INTO $wpdb->options
+                ( option_name, option_value )
+                VALUES
+                ( 'quick_comments', 'a:0:{}' );
+                " );
+        }
+    }
+
     /**
      * Loads the translation files.
      *
