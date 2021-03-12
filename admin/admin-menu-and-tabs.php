@@ -14,16 +14,10 @@ class Disciple_Tools_Quick_Comments_Menu extends Disciple_Tools_Abstract_Menu_Ba
      * it can still have Quick Comment compatibility.
      */
     public static function get_all_quick_comment_types() {
-        global $wpdb;
-
-        $query = "
-            SELECT DISTINCT REPLACE( comment_type, 'qc_', '' )
-            FROM $wpdb->comments
-            WHERE comment_type LIKE 'qc_%'
-            ORDER BY comment_type ASC;";
-
-        $results = $wpdb->get_col( $query );
-        return $results;
+        $current_user_id = 2;// @todo get_current_user_id();
+        $dt_quick_comments = get_user_meta( $current_user_id, 'dt_quick_comments', false );
+        $dt_quick_comment_types = array_keys( $dt_quick_comments[0] );
+        return $dt_quick_comment_types;
     }
 
     /**
@@ -111,16 +105,16 @@ Disciple_Tools_Quick_Comments_Menu::instance();
  */
 class Disciple_Tools_Quick_Comments_Tab {
 
-    public function content( $quick_comment_type = 'all' ) {
+    public function content( $post_type = 'all' ) {
         ?>
         <div class="wrap">
             <div id="poststuff">
                 <div id="post-body" class="metabox-holder columns-2">
                     <div id="post-body-content">
                         <!-- Main Column -->
-
-                        <?php $this->main_column( $quick_comment_type ) ?>
-
+                        <?php
+                            $this->main_column( $post_type );
+                        ?>
                         <!-- End Main Column -->
                     </div><!-- end post-body-content -->
                     <div id="postbox-container-1" class="postbox-container">
@@ -142,42 +136,25 @@ class Disciple_Tools_Quick_Comments_Tab {
      * Get distinct values for the comment_content / comment_type combination
      * and a comment_id for referencing the exact comment_content in future comment_type updates
      **/
-    public function get_quick_comments( $quick_comment_type = 'all' ){
-        global $wpdb;
+    public function get_quick_comments( $post_type = 'all' ){
+        $current_user_id = 2;// @todo get_current_user_id();
+        $dt_quick_comments = get_user_meta( $current_user_id, 'dt_quick_comments', false );
+        $post_type = esc_html( $post_type );
 
-        if ( $quick_comment_type === 'all' ){
-            $query = "
-                SELECT
-                    comment_content,
-                    REPLACE( comment_type, 'qc_', '' ) AS comment_type,
-                    ANY_VALUE( comment_id ) AS comment_id
-                FROM $wpdb->comments
-                WHERE comment_type LIKE 'qc_%'
-                GROUP BY comment_content, comment_type
-                ORDER BY comment_content;";
-        } else {
-            $query = $wpdb->prepare("
-                SELECT
-                    comment_content,
-                    REPLACE( comment_type, 'qc_', '' ) AS comment_type,
-                    ANY_VALUE( comment_id ) AS comment_id
-                FROM
-                    $wpdb->comments
-                WHERE
-                    comment_type = %s
-                GROUP BY
-                    comment_content, comment_type
-                ORDER BY
-                    comment_content ASC;"
-                , 'qc_' . $quick_comment_type );
+        if ( $post_type !== 'all' ) {
+            foreach( $dt_quick_comments[0] as $comment_post_type => $quick_comment ) {
+                foreach( $quick_comment as $comment_content ) {
+                    if ( $comment_post_type !== $post_type ){
+                        unset($dt_quick_comments[0][ $comment_post_type ] );
+                    }
+                } 
+            }
         }
-
-        $results = $wpdb->get_results( $query, ARRAY_A );
-        return $results;
+        return $dt_quick_comments[0];       
     }
 
-    public function main_column( $quick_comment_type = 'all' ) {
-        $quick_comments = self::get_quick_comments( $quick_comment_type );
+    public function main_column( $post_type = 'all') {
+        $quick_comments = self::get_quick_comments( $post_type );
         ?>
         <!-- Box -->
         <table class="widefat striped">
@@ -196,43 +173,63 @@ class Disciple_Tools_Quick_Comments_Tab {
                     </td>
                 </tr>
             <?php endif; ?>
-                <?php 
-                foreach( $quick_comments as $quick_comment => $val ) : ?>
+                <?php foreach( $quick_comments as $comment_post_type => $quick_comment ) : ?>
+                    <?php foreach( $quick_comment as $comment_content ) : ?>
                 <tr>
                     <td>
-                        <?php echo esc_html( $val[ 'comment_content' ] ); ?>
+                        <?php echo esc_html( $comment_content ); ?>
                     </td>
                     <td>
-                        <?php echo esc_html( $val[ 'comment_type' ] ); ?>
+                        <?php echo esc_html( $comment_post_type ); ?>
                     </td>
                     <td style="text-align: right;">
-                        <a href="javascript:void(0);" class="unquicken-comment" data-comment-id="<?php echo esc_html( $val[ 'comment_id' ] ); ?>">un-quicken</a>
+                        <a href="javascript:unquicken_comment(<?php echo $v; ?>);">un-quicken</a>
                     </td>
                 </tr>
+                    <?php endforeach; ?>
                 <?php endforeach; ?>
             </tbody>
         </table>
-        
+
         <script>
+            function unquicken_comment( commentId ) {
                 jQuery( function( $ ) {
-                    $( document ).on( 'click', '.unquicken-comment', function () {
-                        let commentId = $( this ).data(' comment-id' )
-                        $.ajax( {
-                            type: "GET",
-                            contentType: "application/json; charset=utf-8",
-                            dataType: "json",
-                            url: window.location.origin + '/wp-json/disciple_tools_quick_comments/v1/change_comment_type/unquicken/' + commentId,
-                        } )
-                        .done( function( data ) {
-                            window.location.reload()
-                        } )
+                    $.ajax( {
+                        type: "GET",
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json",
+                        url: window.location.origin + '/wp-json/disciple_tools_quick_comments/v1/update_quick_comments/unquicken/' + commentId
                     } )
-                } )
+                    .done( function( data ) {
+                        window.location.reload()
+                    } );
+                })
+            }
+
+            // jQuery( function( $ ) {
+            //     $( document ).ready( function() {
+            //         $( document ).on( 'click', '.unquicken-comment', function () {
+            //             let commentId = $( this ).data( 'comment-id' );
+            //             console.log($( this ).data( 'comment-id' ));
+            //             $.ajax( {
+            //                 type: "GET",
+            //                 contentType: "application/json; charset=utf-8",
+            //                 dataType: "json",
+            //                 url: window.location.origin + '/wp-json/disciple_tools_quick_comments/v1/update_quick_comments/unquicken/' + commentId
+            //             } )
+            //             .done( function( data ) {
+            //                 window.location.reload()
+            //             } );
+            //         } );
+            //     } );
+            // } );
         </script>
         <?php
     }
 
-    public function right_column( $quick_comment_type = 'all' ) {
+
+
+    public function right_column( $post_type = 'all' ) {
         ?>
         <table class="widefat striped">
             <thead>
@@ -250,3 +247,4 @@ class Disciple_Tools_Quick_Comments_Tab {
         <?php
     }
 }
+

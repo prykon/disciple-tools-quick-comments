@@ -21,123 +21,125 @@ class Disciple_Tools_Quick_Comments_Endpoints
         );
 
         register_rest_route(
-            $namespace, '/change_comment_type/(?P<action_type>\w+)/(?P<comment_id>\d+)', [
+            $namespace, '/update_quick_comments/(?P<comment_action>\w+)/(?P<comment_id>\d+)', [
                 'methods' => 'GET',
-                'callback' => [ $this, 'change_comment_type' ],
+                'callback' => [ $this, 'update_quick_comments' ],
+            ]
+        );
+
+        register_rest_route(
+            $namespace, '/unquicken_quick_comment_by_id/(?P<comment_id>\d+)', [
+                'methods' => 'GET',
+                'callback' => [ $this, 'unquicken_quick_comment_by_id' ],
             ]
         );
     }
 
     // Get the quick comments for the dropdown menu
-    public function get_quick_comments( WP_REST_Request $request) {
-        global $wpdb;
-
+    public function get_quick_comments( WP_REST_Request $request ) {
         $params = $request->get_params();
-        $post_type = $request[ 'post_type' ];
-        $current_user_id = get_current_user_id();
+        $post_type = esc_sql( $request[ 'post_type' ] );
+        $current_user_id = 2;// get_current_user_id();
 
-        $query = $wpdb->prepare( "
-            SELECT comment_content, ANY_VALUE( comment_id )
-            FROM $wpdb->comments
-            WHERE comment_type = %s
-            AND user_id = %d
-            GROUP BY comment_content
-            ORDER BY comment_content ASC;",
-            esc_sql( 'qc_' . $post_type ),
-            $current_user_id
-        );
+        $dt_quick_comments = get_user_meta( $current_user_id, 'dt_quick_comments', false ); //false returns data in an array
+var_export($dt_quick_comments);die();
+        // Filter comment ids by post type
+        $dt_quick_comments_filtered = [];
 
-        $results = $wpdb->get_col( $query );
-        return $results;
+        foreach( $dt_quick_comments[0] as $comment_id ) {
+            $comment_data = get_comment ( $comment_id, ARRAY_A );
+            $comment_post_ID = $comment_data['comment_post_ID'];
+            $comment_post_type = get_post_type( $comment_post_ID );
+            $comment_content = $comment_data['comment_content'];
+
+            echo "comment_id: $comment_id
+            ";
+            echo "comment_post_id: $comment_post_id
+            ";
+            echo "comment_post_type: $comment_post_type
+            ";
+            echo "comment_content: $comment_content
+
+            ";
+
+            if ( $comment_post_type === $post_type ) {
+                $dt_quick_comments_filtered[] = [ $comment_id, $comment_post_type, $comment_content];
+            }
+        }
+        return $dt_quick_comments_filtered;
     }
 
-
-    // Get relevant comment information by comment_id
-    public function get_comment_by_id( int $comment_id ) {
-        global $wpdb;
-
-        $query = $wpdb->prepare( "
-            SELECT
-                comment_content,
-                comment_type,
-                comment_post_ID,
-                user_id
-            FROM $wpdb->comments
-            WHERE comment_ID = %d;
-            ",
-
-            esc_sql( $comment_id )
-        );
-
-        $result = $wpdb->get_results( $query, ARRAY_A );
-        return $result[0];
-    }
-
-
-    // Get post_type for a post_id
-    public function get_post_type( int $post_id ) {
-        global $wpdb;
-
-        $query = $wpdb->prepare( "
-            SELECT post_type
-            FROM $wpdb->posts
-            WHERE ID = %d;
-            ",
-
-            esc_sql( $post_id )
-        );
-
-        $result = $wpdb->get_var( $query );
-        return $result;
-    }
-
-
-    // Quickens or un-quickens a comment
-    public function change_comment_type( WP_REST_Request $request ) {
-        global $wpdb;
+    public function update_quick_comments( WP_REST_Request $request ) {
+        // Get passed parameters
         $params = $request->get_params();
-        if ( !$params[ 'comment_id' ] ) {
-            return 'error: comment_id parameter missing';
+        $comment_action = esc_sql( $params['comment_action'] );
+        $comment_id = $params['comment_id'];
+        $current_user_id = 2;
+
+        if ( empty( $comment_id ) ) {
+            return 'error: comment_id is missing';
         }
 
-        $comment_id = (int)$params[ 'comment_id' ];
+        if ( empty( $comment_action ) ) {
+            return 'error: comment_action is missing';
+        }
 
-
-        // Get comment data from its id
-        $data_comment = self::get_comment_by_id( $comment_id );
-
-        switch( $request[ 'action_type' ] ) {
-            case 'unquicken':
-                $new_comment_type = 'comment';
-                break;
-
+        // Get comment content
+        // $comment_data = get_comment( $comment_id, ARRAY_A );
+        // $comment_post_ID = $comment_data['comment_post_ID'];
+        // $comment_content = $comment_data['comment_content'];
+        // $post_type = get_post_type( $comment_post_ID );
+        
+        // Get quick comments
+        $dt_quick_comments =  get_user_meta( $current_user_id, 'dt_quick_comments', false); //@todo get_current_user_id
+        
+        switch( $comment_action ) {
+            
+            // Quicken the comment
             case 'quicken':
-                // Get post type
-                $post_type = self::get_post_type( (int)$data_comment[ 'comment_post_ID' ] );
-                $new_comment_type = 'qc_' . $post_type;
+            //update_user_meta( $current_user_id, 'dt_quick_comments', []);die();
+            //var_export($dt_quick_comments[0]);die();
+                
+                // Check if the quick comment isn't already in saved
+                if ( in_array( $comment_id, $dt_quick_comments ) ) {
+                    return "error: that comment is already a quick comment";
+                } else {
+                    // Quicken the comment
+                    $dt_quick_comments[] = $comment_id;
+                    //array_push($dt_quick_comments, $comment_id);
+                    update_user_meta( $current_user_id, 'dt_quick_comments', array() );
+                    update_user_meta( $current_user_id, 'dt_quick_comments', $dt_quick_comments );
+                    return "comment added to quick comments";
+                }
+                break;
+            
+            // Un-quicken the comment
+            case 'unquicken':
+                // Check if the comment is a quick comment so we can un-quicken it
+                if ( !in_array( $comment_content, $dt_quick_comments[$post_type] ) ) {
+                    return "error: that isn't a quick comment for '$post_type' so we can't un-quicken it";
+                } else {
+
+                    // Un-quicken the comment
+                    unset( $dt_quick_comments[ array_search( $comment_id, $dt_quick_comments) ] );
+                    update_user_meta( $current_user_id, 'dt_quick_comments', $dt_quick_comments );
+                    return "comment removed from quick comments for '$post_type'";
+                }
                 break;
 
             default:
-                return "error: unknown action type; must be 'quicken' or 'unquicken'.";
+                return 'error: we can\'t understand what you\'re trying to do... ¯\_(ツ)_/¯';
         }
-
-        $query = $wpdb->prepare( "
-            UPDATE $wpdb->comments
-            SET comment_type = %s
-            WHERE comment_content = %s
-            AND comment_type = %s
-            AND user_id = %d;",
-
-            esc_sql( $new_comment_type ),
-            esc_sql( $data_comment[ 'comment_content' ] ),
-            esc_sql( $data_comment[ 'comment_type' ] ),
-            esc_sql( (int)$data_comment[ 'user_id' ] )
-        );
-
-        $result = $wpdb->query( $query );
-        return $result;
     }
 
+    public function unquicken_quick_comment_by_id( WP_REST_Request $request ) {
+        $current_user_id = 2;// get_current_user_id();
+        $comment_id = esc_sql( $request->get_params()['comment_id'] );
+
+        $dt_quick_comments = get_user_meta( $current_user_id, 'dt_quick_comments', false ); //false returns data in an array
+        var_export($dt_quick_comments);die();
+        return $dt_quick_comments[0][$post_type];
+    }
 
     private static $_instance = null;
     public static function instance() {

@@ -66,6 +66,9 @@ function disciple_tools_quick_comments() {
 
 add_action( 'after_setup_theme', 'disciple_tools_quick_comments', 20 );
 
+
+
+
 /**
  * Singleton class for setting up the plugin.
  *
@@ -85,7 +88,7 @@ class Disciple_Tools_Quick_Comments {
     private function __construct() {
 
         $is_rest = dt_is_rest();
-        
+
         if ( strpos( dt_get_url_path(), 'disciple_tools_quick_comments_template' ) !== false ) {
             require_once( 'rest-api/rest-api.php' ); // adds starter rest api class
         } else {
@@ -134,7 +137,7 @@ class Disciple_Tools_Quick_Comments {
           function get_toggle_links() {
             $( '.open-delete-comment' ).each( function( i, item ) {
                 let commentId = $( item ).data( 'id' )
-                let commentType = $( '.open-edit-comment[data-id="' + commentId + '"' ).data( 'type' )
+                let commentType = $( '.open-edit-comment[data-id="' + commentId + '"' ).data( 'type' );
                 let quickText;
                 let commentTitle;
 
@@ -158,9 +161,10 @@ class Disciple_Tools_Quick_Comments {
               type: "GET",
               contentType: "application/json; charset=utf-8",
               dataType: "json",
-              url: window.location.origin + '/wp-json/disciple_tools_quick_comments/v1/get_quick_comments/' + postType,
+              url: window.location.origin + '/wp-json/disciple_tools_quick_comments/v1/get_quick_comments/' + postType
               } )
             .done( function( data ) {
+                console.log(data.responseText)
                 //First clear current links so the new response doesn't get appended to them
                 $('#quick-answers-dropdown-menu').contents().remove()
                 if ( data.length > 0 ) {
@@ -200,10 +204,10 @@ class Disciple_Tools_Quick_Comments {
             let postId = window.detailsSettings.post_id;
             let postType = window.detailsSettings.post_type;
             let commentId = $( this ).data( 'id' );
-            let commentType = $( '.open-edit-comment[data-id="' + commentId + '"' ).data( 'type' );
-            let api_path = '/wp-json/disciple_tools_quick_comments/v1/change_comment_type';
+            let commentType = $( '.open-edit-comment[data-id="' + commentId + '"]' ).data( 'type' );
+            let api_path = '/wp-json/disciple_tools_quick_comments/v1/update_quick_comments';
             let quickText;
-
+            
             if ( commentType == 'comment' ) {
               // Quicken the comment
               $.ajax( {
@@ -280,19 +284,11 @@ class Disciple_Tools_Quick_Comments {
      * @return void
      */
     public static function activation() {
-      global $wpdb;
-
-        $response = get_site_option( 'quick_comments' );
-        
-        if( empty( $response ) ) {
-            // No previously generated quick comments; create the row
-            $wpdb->query( "
-                INSERT INTO $wpdb->options
-                ( option_name, option_value )
-                VALUES
-                ( 'quick_comments', 'a:0:{}' );
-                " );
-        }
+      //update_user_meta acts as add_user_meta if name doesn't exist
+      // $dt_quick_comments = array();
+      // $dt_quick_comments['contacts'] = "";
+      // $dt_quick_comments['groups'] = "";
+      // update_user_meta('dt_quick_comments', 2, $dt_quick_comments );
     }
 
     /**
