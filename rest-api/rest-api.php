@@ -40,34 +40,28 @@ class Disciple_Tools_Quick_Comments_Endpoints
                 'callback' => [ $this, 'unquicken_quick_comment_by_id' ],
             ]
         );
-
-        register_rest_route(
-            $namespace, '/get-last-comment-by-user-id', [
-                'methods' => 'GET',
-                'callback' => [ $this, 'get_last_comment_by_user_id' ],
-            ]
-        );
     }
 
     // Get the quick comments for the dropdown menu
     public function get_quick_comments( WP_REST_Request $request ) {
         $params = $request->get_params();
-        $post_type = esc_sql( $request[ 'post_type' ] );
+        $post_type = esc_sql( $request['post_type'] );
+
         $current_user_id = 2;// get_current_user_id();
 
         $dt_quick_comments = get_user_meta( $current_user_id, 'dt_quick_comments', false ); //false returns data in an array
         // Filter comment ids by post type
         $dt_quick_comments_filtered = [];
 
-        foreach( $dt_quick_comments[0] as $comment_id ) {
+        foreach ( $dt_quick_comments[0] as $comment_id ) {
             //var_export($comment_data);
             $comment_data = get_comment( $comment_id, ARRAY_A );
-            $comment_post_ID = $comment_data[ 'comment_post_ID' ];
-            $comment_post_type = get_post_type( $comment_post_ID );
-            $comment_content = $comment_data[ 'comment_content' ];
+            $comment_post_id = $comment_data['comment_post_ID'];
+            $comment_post_type = get_post_type( $comment_post_id );
+            $comment_content = $comment_data['comment_content'];
 
             if ( $comment_post_type === $post_type ) {
-                array_push( $dt_quick_comments_filtered, [$comment_id, $comment_post_type, $comment_content] );
+                array_push( $dt_quick_comments_filtered, [ $comment_id, $comment_post_type, $comment_content ] );
             }
         }
         return $dt_quick_comments_filtered;
@@ -75,15 +69,15 @@ class Disciple_Tools_Quick_Comments_Endpoints
 
     public function get_all_quick_comments() {
         $current_user_id = 2;
-        $dt_quick_comments = get_user_meta( $current_user_id, 'dt_quick_comments', false);
+        $dt_quick_comments = get_user_meta( $current_user_id, 'dt_quick_comments', false );
         $dt_quick_comments_complete = [];
-        
-        foreach( $dt_quick_comments[0] as $comment_id ) {
+
+        foreach ( $dt_quick_comments[0] as $comment_id ) {
             $comment_data = get_comment( $comment_id, ARRAY_A );
-            $comment_post_ID = $comment_data[ 'comment_post_ID' ];
-            $comment_post_type = get_post_type( $comment_post_ID );
-            $comment_content = $comment_data[ 'comment_content' ];
-            array_push( $dt_quick_comments_complete, [$comment_id, $comment_post_type, $comment_content] );
+            $comment_post_id = $comment_data['comment_post_ID'];
+            $comment_post_type = get_post_type( $comment_post_id );
+            $comment_content = $comment_data['comment_content'];
+            array_push( $dt_quick_comments_complete, [ $comment_id, $comment_post_type, $comment_content ] );
         }
 
         return $dt_quick_comments_complete;
@@ -106,30 +100,29 @@ class Disciple_Tools_Quick_Comments_Endpoints
 
         // Get comment content
         // $comment_data = get_comment( $comment_id, ARRAY_A );
-        // $comment_post_ID = $comment_data['comment_post_ID'];
+        // $comment_post_id = $comment_data['comment_post_ID'];
         // $comment_content = $comment_data['comment_content'];
-        // $post_type = get_post_type( $comment_post_ID );
-        
+        // $post_type = get_post_type( $comment_post_id );
+
         // Get quick comments
-        $dt_quick_comments =  get_user_meta( $current_user_id, 'dt_quick_comments'); //@todo get_current_user_id
+        $dt_quick_comments = get_user_meta( $current_user_id, 'dt_quick_comments' ); //@todo get_current_user_id
         $dt_current_comments = $dt_quick_comments[0];
         $new_quick_comments = array();
         $new_quick_comments[] = $comment_id;
 
-        if ( is_array($dt_current_comments) ) {   
-            foreach( $dt_current_comments as $key => $val ) {
+        if ( is_array( $dt_current_comments ) ) {
+            foreach ( $dt_current_comments as $key => $val ) {
                 $new_quick_comments[] = $val;
             }
         }
 
 
-        switch( $comment_action ) {
-            
+        switch ( $comment_action ) {
             // Quicken the comment
             case 'quicken':
             //update_user_meta( $current_user_id, 'dt_quick_comments', []);die();
             //var_export($dt_quick_comments[0]);die();
-                
+
                 // Check if the quick comment isn't already in saved
                 if ( is_array( $dt_current_comments ) ) {
                     if ( in_array( $comment_id, $dt_current_comments ) ) {
@@ -142,7 +135,7 @@ class Disciple_Tools_Quick_Comments_Endpoints
                     }
                 }
                 break;
-            
+
             // Un-quicken the comment
             case 'unquicken':
                 // Check if the comment is a quick comment so we can un-quicken it
@@ -152,7 +145,7 @@ class Disciple_Tools_Quick_Comments_Endpoints
                     } else {
 
                         // Un-quicken the comment
-                        unset( $dt_current_comments[ array_search($comment_id, $dt_current_comments ) ] );
+                        unset( $dt_current_comments[ array_search( $comment_id, $dt_current_comments ) ] );
                         $dt_current_comments = array_values( $dt_current_comments ); // Reset array index
                         update_user_meta( $current_user_id, 'dt_quick_comments', $dt_current_comments );
                         return "comment removed from quick comments";
@@ -174,14 +167,6 @@ class Disciple_Tools_Quick_Comments_Endpoints
         $dt_quick_comments = get_user_meta( $current_user_id, 'dt_quick_comments', false ); //false returns data in an array
 
         return $dt_quick_comments[0][$post_type];
-    }
-
-    public function get_last_comment_by_user_id() {
-        global $wpdb;
-
-        $current_user_id = 2;
-        $last_comment = $wpdb->get_var( "SELECT comment_ID FROM $wpdb->comments WHERE user_id = 2 ORDER BY comment_ID DESC LIMIT 1;" );
-        return $last_comment;
     }
 
     private static $_instance = null;
