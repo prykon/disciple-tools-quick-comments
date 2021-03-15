@@ -16,7 +16,19 @@ class Disciple_Tools_Quick_Comments_Menu extends Disciple_Tools_Abstract_Menu_Ba
     public static function get_all_quick_comment_types() {
         $current_user_id = 2;// @todo get_current_user_id();
         $dt_quick_comments = get_user_meta( $current_user_id, 'dt_quick_comments', false );
-        $dt_quick_comment_types = array_keys( $dt_quick_comments[0] );
+        // var_dump($dt_quick_comments[0]);die();
+        $dt_quick_comment_types = [];
+
+        foreach( $dt_quick_comments[0] as $qc ) {
+            $comment_data = get_comment( $qc, ARRAY_A );
+            $comment_post_ID = $comment_data[ 'comment_post_ID' ];
+            $comment_post_type = get_post_type( $comment_post_ID );
+            
+            if ( ! in_array($comment_post_type, $dt_quick_comment_types ) ) {
+                $dt_quick_comment_types[] = $comment_post_type;
+            }
+        }
+
         return $dt_quick_comment_types;
     }
 
@@ -65,7 +77,7 @@ class Disciple_Tools_Quick_Comments_Menu extends Disciple_Tools_Abstract_Menu_Ba
      */
     public function content() {
 
-        if ( !current_user_can( 'manage_dt' ) ) { // manage dt is a permission that is specific to Disciple Tools and allows admins, strategists and dispatchers into the wp-admin
+        if ( ! current_user_can( 'manage_dt' ) ) { // manage dt is a permission that is specific to Disciple Tools and allows admins, strategists and dispatchers into the wp-admin
            wp_die( 'You do not have sufficient permissions to access this page.' );
         }
 
@@ -85,7 +97,6 @@ class Disciple_Tools_Quick_Comments_Menu extends Disciple_Tools_Abstract_Menu_Ba
             <h2 class="nav-tab-wrapper">
                 <a href="<?php echo esc_attr( $link ) . 'all' ?>" class="nav-tab <?php echo esc_html( ( $tab == 'all' || !isset( $tab ) ) ? 'nav-tab-active' : '' ); ?>">All</a>
                 <?php foreach($tabs as $t ) : ?>
-                
                 <a href="<?php echo esc_attr( $link ) . $t ?>" class="nav-tab <?php echo esc_html( ( $tab == $t || !isset( $tab ) ) ? 'nav-tab-active' : '' ); ?>"><?php echo ucwords( esc_html( $t ) ); ?></a>
             <?php endforeach; ?>
             </h2>
@@ -132,29 +143,44 @@ class Disciple_Tools_Quick_Comments_Tab {
         <?php
     }
 
-    /**
-     * Get distinct values for the comment_content / comment_type combination
-     * and a comment_id for referencing the exact comment_content in future comment_type updates
-     **/
-    public function get_quick_comments( $post_type = 'all' ){
-        $current_user_id = 2;// @todo get_current_user_id();
-        $dt_quick_comments = get_user_meta( $current_user_id, 'dt_quick_comments', false );
-        $post_type = esc_html( $post_type );
+    // /**
+    //  * Get distinct values for the comment_content / comment_type combination
+    //  * and a comment_id for referencing the exact comment_content in future comment_type updates
+    //  **/
+    // public function get_quick_comments( $post_type = 'all' ){
+    //     $current_user_id = 2;// @todo get_current_user_id();
+    //     $dt_quick_comments = get_user_meta( $current_user_id, 'dt_quick_comments', false );
+    //     $post_type = esc_html( $post_type );
 
-        if ( $post_type !== 'all' ) {
-            foreach( $dt_quick_comments[0] as $comment_post_type => $quick_comment ) {
-                foreach( $quick_comment as $comment_content ) {
-                    if ( $comment_post_type !== $post_type ){
-                        unset($dt_quick_comments[0][ $comment_post_type ] );
-                    }
-                } 
-            }
-        }
-        return $dt_quick_comments[0];       
-    }
+    //     if ( $post_type !== 'all' ) {
+    //         foreach( $dt_quick_comments[0] as $quick_comment ) {
+    //             foreach( $quick_comment as $comment_content ) {
+    //                 if ( $comment_post_type !== $post_type ) {
+    //                     unset($dt_quick_comments[0][ $comment_post_type ] );
+    //                 }
+    //             } 
+    //         }
+    //     }
+    //     return $dt_quick_comments[0];       
+    // }
 
     public function main_column( $post_type = 'all') {
-        $quick_comments = self::get_quick_comments( $post_type );
+        if ( $post_type !== 'all' ) {
+            $rest_request = new WP_REST_Request( 'GET', '/disciple_tools_quick_comments/v1/get_quick_comments/contacts' );
+            $rest_request->set_query_params( [ 'post_type' => esc_sql( $post_type ) ] );
+            $response = rest_do_request( $rest_request );
+            $server = rest_get_server();
+            $quick_comments = $server->response_to_data( $response, false );
+            //$quick_comments = wp_json_encode( $data );
+
+        } else {
+            $rest_request = new WP_REST_Request( 'GET', '/disciple_tools_quick_comments/v1/get_all_quick_comments' );
+            $response = rest_do_request( $rest_request );
+            $server = rest_get_server();
+            $quick_comments = $server->response_to_data( $response, false );
+            //$quick_comments = wp_json_encode( $data );
+        }
+
         ?>
         <!-- Box -->
         <table class="widefat striped">
@@ -173,20 +199,23 @@ class Disciple_Tools_Quick_Comments_Tab {
                     </td>
                 </tr>
             <?php endif; ?>
-                <?php foreach( $quick_comments as $comment_post_type => $quick_comment ) : ?>
-                    <?php foreach( $quick_comment as $comment_content ) : ?>
+                <?php foreach( $quick_comments as $qc ) : ?>
+                    <?php 
+                        $comment_id = $qc[0];
+                        $comment_post_type = $qc[1];
+                        $comment_content = $qc[2];
+                    ?>
                 <tr>
                     <td>
-                        <?php echo esc_html( $comment_content ); ?>
+                        <?php echo $comment_content; ?>
                     </td>
                     <td>
-                        <?php echo esc_html( $comment_post_type ); ?>
+                        <?php echo $comment_post_type; ?>
                     </td>
                     <td style="text-align: right;">
-                        <a href="javascript:unquicken_comment(<?php echo $v; ?>);">un-quicken</a>
+                        <a href="javascript:unquicken_comment(<?php echo $comment_id; ?>);">un-quicken</a>
                     </td>
                 </tr>
-                    <?php endforeach; ?>
                 <?php endforeach; ?>
             </tbody>
         </table>
