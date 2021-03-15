@@ -40,6 +40,13 @@ class Disciple_Tools_Quick_Comments_Endpoints
                 'callback' => [ $this, 'unquicken_quick_comment_by_id' ],
             ]
         );
+
+        register_rest_route(
+            $namespace, '/get-last-comment-by-user-id', [
+                'methods' => 'GET',
+                'callback' => [ $this, 'get_last_comment_by_user_id' ],
+            ]
+        );
     }
 
     // Get the quick comments for the dropdown menu
@@ -161,12 +168,20 @@ class Disciple_Tools_Quick_Comments_Endpoints
     }
 
     public function unquicken_quick_comment_by_id( WP_REST_Request $request ) {
-        $current_user_id = 2;// get_current_user_id();
+        $current_user_id = 2; // get_current_user_id();
         $comment_id = esc_sql( $request->get_params()['comment_id'] );
 
         $dt_quick_comments = get_user_meta( $current_user_id, 'dt_quick_comments', false ); //false returns data in an array
 
         return $dt_quick_comments[0][$post_type];
+    }
+
+    public function get_last_comment_by_user_id() {
+        global $wpdb;
+
+        $current_user_id = 2;
+        $last_comment = $wpdb->get_var( "SELECT comment_ID FROM $wpdb->comments WHERE user_id = 2 ORDER BY comment_ID DESC LIMIT 1;" );
+        return $last_comment;
     }
 
     private static $_instance = null;

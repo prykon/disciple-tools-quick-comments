@@ -78,6 +78,7 @@ add_action( 'after_setup_theme', 'disciple_tools_quick_comments', 20 );
 class Disciple_Tools_Quick_Comments {
 
     private static $_instance = null;
+
     public static function instance() {
         if ( is_null( self::$_instance ) ) {
             self::$_instance = new self();
@@ -86,7 +87,6 @@ class Disciple_Tools_Quick_Comments {
     }
 
     private function __construct() {
-
         $is_rest = dt_is_rest();
 
         if ( strpos( dt_get_url_path(), 'disciple_tools_quick_comments_template' ) !== false ) {
@@ -132,29 +132,28 @@ class Disciple_Tools_Quick_Comments {
 
     public function add_make_quick_comment_link(){
         ?>
+          <script>
+            $( '#create-quick-comment-return' ).on( 'click', function () {
+            let commentContent = $('#new-quick-comment').val();
+            let postId = window.detailsSettings.post_id;
+            let postType = window.detailsSettings.post_type;
+            window.API.post_comment( postType, postId, commentContent, 'comment' ).done( function( data ) {
+              let last_comment_id = data.comment_ID;
+                  $.ajax( {
+                    type: "GET",
+                     contentType: "application/json; charset=utf-8",
+                     dataType: "json",
+                     url: window.location.origin + '/wp-json/disciple_tools_quick_comments/v1/update_quick_comments/quicken/' + last_comment_id
+                  } );
+                  
+                  console.log( 'I just created a qc for comment id: ' + last_comment_id );
+                })
+            });
+        </script>
         <script>
-          // Show quick comment toggle links
-          function get_toggle_links() {
-            $( '.open-delete-comment' ).each( function( i, item ) {
-                let commentId = $( item ).data( 'id' )
-                let commentType = $( '.open-edit-comment[data-id="' + commentId + '"' ).data( 'type' );
-                let quickText;
-                let commentTitle;
-
-                if ( commentType == 'comment' ) {
-                  quickText = 'quicken';
-                  commentTitle = 'create a quick comment from this comment';
-                } else {
-                  quickText = 'un-quicken';
-                  commentTitle = 'turn back into a regular comment';
-                }
-                $( item ).after(`
-                  <a href="javascript:void(0)" class="open-quicken-comment ` + commentId + `" data-id="` + commentId + `" data-comment-type="` + commentType + `" title="` + commentTitle + `">
-                      <img src="${_.escape( window.wpApiShare.template_dir )}/dt-assets/images/view-comments.svg">
-                  ` + quickText + `</a>`)
-            })
-          }
-
+             // Get last comment id by user
+             
+        
           // Get quick comments and add them to dropdown menu
           function get_quick_comments( postType ) {
             $.ajax( {
@@ -162,80 +161,57 @@ class Disciple_Tools_Quick_Comments {
               contentType: "application/json; charset=utf-8",
               dataType: "json",
               url: window.location.origin + '/wp-json/disciple_tools_quick_comments/v1/get_quick_comments/' + postType
-              } )
-            .done( function( data ) {
-                console.log(data.responseText)
+              } ).done( function( data ) {
                 //First clear current links so the new response doesn't get appended to them
-                $('#quick-answers-dropdown-menu').contents().remove()
+                let new_quick_comment_text = 'new quick comment...';
+                $('#quick-answers-dropdown-menu').contents().remove();
+                $('#quick-answers-dropdown-menu').append( `
+                  <li class="quick-comment-menu" data-open="create-quick-comment-modal" style="border-bottom:1px solid #cacaca;"'>
+                    <a><i>` + new_quick_comment_text + `</i></a>
+                  </li>`);
+
                 if ( data.length > 0 ) {
-                  $.each( data, function( i, v ) {
+                  for( var i = 0; i < data.length; i++ ) {
                     $( '#quick-answers-dropdown-menu' ).append( `
-                        <li class="quick-comment-menu">
-                            <a data-type="quick-comment">` + v + `</a>
-                        </li>` )
-                  } )
+                         <li class="quick-comment-menu" data-quick-comment-id="` + data[i][0] + `">
+                             <a data-type="quick-comment">` + data[i][2] + `</a>
+                         </li>` );
+                  }                  
                 } else {
                     $( '#quick-answers-dropdown-menu' ).append( `
                         <li class="quick-comment-menu">
                             <a><i>no quick comments created yet for ` + postType + `</i></a>
-                        </li>` )
+                        </li>` );
                 }
             } );
           }
 
-          // Post the quick comment
+          // Post the quick comment from dropdown menu
           $( document ).on( 'click', 'a[data-type="quick-comment"]', function() {
-           let postId = window.detailsSettings.post_id;
-           let postType = window.detailsSettings.post_type;
-           let commentContent = $( this ).text();
-           let commentType = 'qc_' + postType;
-           window.API.post_comment( postType, postId, commentContent, commentType )
-           .then( data => {} ).catch( err => {
-            console.log( "error" );
-            console.log( err );
-            jQuery( '#errors' ).append( err.responseText);
-          } );
-           
-           get_quick_comments( postType );
-          })
-      
-          // Function that quickens or un-quickens comments
-          $( document ).on( 'click', '.open-quicken-comment', function() {
             let postId = window.detailsSettings.post_id;
             let postType = window.detailsSettings.post_type;
-            let commentId = $( this ).data( 'id' );
-            let commentType = $( '.open-edit-comment[data-id="' + commentId + '"]' ).data( 'type' );
-            let api_path = '/wp-json/disciple_tools_quick_comments/v1/update_quick_comments';
-            let quickText;
-            
-            if ( commentType == 'comment' ) {
-              // Quicken the comment
-              $.ajax( {
-                type: "GET",
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
-                url: window.location.origin + api_path + '/quicken/' + commentId
-              } )
-            } else {
-              // Unquicken a quick comment without deleting posted occurences
-              $.ajax( {
-                type: "GET",
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
-                url: window.location.origin + api_path + '/unquicken/' + commentId
-              } )
-            }
-
-            // Show success message and reload quick comments
-            $( this )[0].innerHTML = `<img src="${ _.escape( window.wpApiShare.template_dir ) }/dt-assets/images/view-comments.svg"> done!`;
-            get_quick_comments( postType );
-            $( this ).fadeOut( 3500 );
-          })
+            let commentContent = $( this ).text();
+            let commentType = 'qc_' + postType;
+            window.API.post_comment( postType, postId, commentContent, commentType ).done( data => {} ).catch( err => {
+              console.log( 'error' );
+              console.log( err );
+              jQuery( '#errors' ).append( err.responseText);
+            } )
+          } );
+           
+          //  get_quick_comments( postType );
+          // })
+      
+          // // Function that quickens or un-quickens comments
+          // jQuery('#add-comment-button').on('click', function () {
+          //   if ( $('#comment_type_selector').val() == 'quick_comment' ) {
+              
+          //   }
+          // })
 
             $( document ).ready( function() {
               let postType = window.detailsSettings.post_type;
               get_quick_comments( postType );
-              get_toggle_links();
             })
         </script>
         
@@ -257,6 +233,31 @@ class Disciple_Tools_Quick_Comments {
         <button class="help-button" data-section="quick-comments-help-text">
             <img class="help-icon" src="<?php echo esc_html( get_template_directory_uri() ); ?>/dt-assets/images/help.svg"/>
         </button>
+
+        <div class="reveal" id="create-quick-comment-modal" data-reveal data-reset-on-close>
+        <h3><?php esc_html_e( 'Quick Comments', 'disciple_tools' )?></h3>
+        <p><?php esc_html_e( 'Add a new quick comment', 'disciple_tools' )?></p>
+
+        <form class="js-create-quick-comment">
+            <label for="title">
+                <?php esc_html_e( "Quick Comment", "disciple_tools" ); ?>
+            </label>
+            <input name="title" id="new-quick-comment" type="text" placeholder="<?php esc_html_e( "Quick Comments", 'disciple_tools' ); ?>" required aria-describedby="name-help-text">
+            <p class="help-text" id="name-help-text"><?php esc_html_e( "This is required", "disciple_tools" ); ?></p>
+        </form>
+
+        <div class="grid-x">
+            <button class="button button-cancel clear" data-close aria-label="Close reveal" type="button">
+                <?php echo esc_html__( 'Cancel', 'disciple_tools' )?>
+            </button>
+            <button class="button" data-close type="button" id="create-quick-comment-return">
+                <?php esc_html_e( 'Create and post quick comment', 'disciple_tools' ); ?>
+            </button>
+            <button class="close-button" data-close aria-label="Close modal" type="button">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    </div>
 <?php
     }
 
