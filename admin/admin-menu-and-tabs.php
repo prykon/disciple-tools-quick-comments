@@ -204,7 +204,10 @@ class Disciple_Tools_Quick_Comments_Tab {
                         type: "GET",
                         contentType: "application/json; charset=utf-8",
                         dataType: "json",
-                        url: window.location.origin + '/wp-json/disciple_tools_quick_comments/v1/update_quick_comments/unquicken/' + commentId + '/' + window.detailsSettings.current_user_id
+                        url: window.location.origin + '/wp-json/disciple_tools_quick_comments/v1/update_quick_comments/unquicken/' + commentId,
+                        beforeSend: function(xhr) {
+                            xhr.setRequestHeader('X-WP-Nonce', '<?php echo esc_attr( wp_create_nonce( 'wp_rest' ) ) ?>' );
+                        },
                     } )
                     .done( function( data ) {
                         window.location.reload()
