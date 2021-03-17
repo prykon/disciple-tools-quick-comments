@@ -130,7 +130,7 @@ class Disciple_Tools_Quick_Comments {
     }
 
     public function add_make_quick_comment_link(){
-      $qc_nonce = wp_create_nonce( 'qc_wp_rest' ); ?>
+        $qc_nonce = wp_create_nonce( 'qc_wp_rest' ); ?>
         ?>
           <script>
             // Get quick comments and add them to dropdown menu

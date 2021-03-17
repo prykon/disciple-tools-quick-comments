@@ -29,7 +29,7 @@ class Disciple_Tools_Quick_Comments_Menu extends Disciple_Tools_Abstract_Menu_Ba
             }
         }
 
-        sort($dt_quick_comment_types);
+        sort( $dt_quick_comment_types );
         return $dt_quick_comment_types;
     }
 
