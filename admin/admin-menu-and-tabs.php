@@ -14,7 +14,7 @@ class Disciple_Tools_Quick_Comments_Menu extends Disciple_Tools_Abstract_Menu_Ba
      * it can still have Quick Comment compatibility.
      */
     public static function get_all_quick_comment_types() {
-        $current_user_id = 2;// @todo get_current_user_id();
+        $current_user_id = get_current_user_id();
         $dt_quick_comments = get_user_meta( $current_user_id, 'dt_quick_comments', false );
         // var_dump($dt_quick_comments[0]);die();
         $dt_quick_comment_types = [];
@@ -29,6 +29,7 @@ class Disciple_Tools_Quick_Comments_Menu extends Disciple_Tools_Abstract_Menu_Ba
             }
         }
 
+        sort($dt_quick_comment_types);
         return $dt_quick_comment_types;
     }
 
@@ -145,19 +146,16 @@ class Disciple_Tools_Quick_Comments_Tab {
 
     public function main_column( $post_type = 'all') {
         if ( $post_type !== 'all' ) {
-            $rest_request = new WP_REST_Request( 'GET', '/disciple_tools_quick_comments/v1/get_quick_comments/contacts' );
+            $rest_request = new WP_REST_Request( 'GET', '/disciple_tools_quick_comments/v1/get_quick_comments/' . esc_sql( $post_type ) );
             $rest_request->set_query_params( [ 'post_type' => esc_sql( $post_type ) ] );
             $response = rest_do_request( $rest_request );
             $server = rest_get_server();
             $quick_comments = $server->response_to_data( $response, false );
-            //$quick_comments = wp_json_encode( $data );
-
         } else {
             $rest_request = new WP_REST_Request( 'GET', '/disciple_tools_quick_comments/v1/get_all_quick_comments' );
             $response = rest_do_request( $rest_request );
             $server = rest_get_server();
             $quick_comments = $server->response_to_data( $response, false );
-            //$quick_comments = wp_json_encode( $data );
         }
 
         ?>
@@ -206,7 +204,7 @@ class Disciple_Tools_Quick_Comments_Tab {
                         type: "GET",
                         contentType: "application/json; charset=utf-8",
                         dataType: "json",
-                        url: window.location.origin + '/wp-json/disciple_tools_quick_comments/v1/update_quick_comments/unquicken/' + commentId
+                        url: window.location.origin + '/wp-json/disciple_tools_quick_comments/v1/update_quick_comments/unquicken/' + commentId + '/' + window.detailsSettings.current_user_id
                     } )
                     .done( function( data ) {
                         window.location.reload()

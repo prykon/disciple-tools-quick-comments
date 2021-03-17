@@ -130,6 +130,7 @@ class Disciple_Tools_Quick_Comments {
     }
 
     public function add_make_quick_comment_link(){
+      $qc_nonce = wp_create_nonce( 'qc_wp_rest' ); ?>
         ?>
           <script>
             // Get quick comments and add them to dropdown menu
@@ -138,7 +139,7 @@ class Disciple_Tools_Quick_Comments {
                 type: "GET",
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
-                url: window.location.origin + '/wp-json/disciple_tools_quick_comments/v1/get_quick_comments/' + postType
+                url: window.location.origin + '/wp-json/disciple_tools_quick_comments/v1/get_quick_comments/' + postType + '/' + window.detailsSettings.current_user_id,
                 } ).done( function( data ) {
                   //First clear current links so the new response doesn't get appended to them
                   let new_quick_comment_text = 'new quick comment...';
@@ -174,7 +175,7 @@ class Disciple_Tools_Quick_Comments {
                     type: "GET",
                      contentType: "application/json; charset=utf-8",
                      dataType: "json",
-                     url: window.location.origin + '/wp-json/disciple_tools_quick_comments/v1/update_quick_comments/quicken/' + last_comment_id,
+                     url: window.location.origin + '/wp-json/disciple_tools_quick_comments/v1/update_quick_comments/quicken/' + last_comment_id  + '/' + window.detailsSettings.current_user_id,
                   } );
                   
                 } );

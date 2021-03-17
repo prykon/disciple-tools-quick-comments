@@ -14,28 +14,28 @@ class Disciple_Tools_Quick_Comments_Endpoints
         $namespace = 'disciple_tools_quick_comments/v1';
 
         register_rest_route(
-            $namespace, '/get_quick_comments/(?P<post_type>\w+)', [
+            $namespace, '/get_quick_comments/(?P<post_type>\w+)/(?P<user_id>\d+)', [
                 'methods'  => 'GET',
                 'callback' => [ $this, 'get_quick_comments' ],
             ]
         );
 
         register_rest_route(
-            $namespace, 'get_all_quick_comments', [
+            $namespace, 'get_all_quick_comments/(?P<user_id>\d+)', [
                 'methods' => 'GET',
                 'callback' => [ $this, 'get_all_quick_comments' ],
             ]
         );
 
         register_rest_route(
-            $namespace, '/update_quick_comments/(?P<comment_action>\w+)/(?P<comment_id>\d+)', [
+            $namespace, '/update_quick_comments/(?P<comment_action>\w+)/(?P<comment_id>\d+)/(?P<user_id>\d+)', [
                 'methods' => 'GET',
                 'callback' => [ $this, 'update_quick_comments' ],
             ]
         );
 
         register_rest_route(
-            $namespace, '/unquicken_quick_comment_by_id/(?P<comment_id>\d+)', [
+            $namespace, '/unquicken_quick_comment_by_id/(?P<comment_id>\d+)/(?P<user_id>\d+)', [
                 'methods' => 'GET',
                 'callback' => [ $this, 'unquicken_quick_comment_by_id' ],
             ]
@@ -45,11 +45,22 @@ class Disciple_Tools_Quick_Comments_Endpoints
     // Get the quick comments for the dropdown menu
     public function get_quick_comments( WP_REST_Request $request ) {
         $params = $request->get_params();
+        $current_user_id = esc_sql( $params['user_id'] );
         $post_type = esc_sql( $request['post_type'] );
+        // $current_user_id = esc_sql( $request['user_id'] );
+        // $qc_nonce = esc_sql( $request['qc_nonce'] );
+        // $nonce_state = wp_verify_nonce( '1c8f068122', 'qc_wp_rest' );
 
-        $current_user_id = 2;// get_current_user_id();
+        // //Verify the nonce
+        // if ( ! isset( $qc_nonce ) ) {
+        //     return new WP_Error( 'missing_nonce');
+        // }
 
-        $dt_quick_comments = get_user_meta( $current_user_id, 'dt_quick_comments', false ); //false returns data in an array
+        // elseif ( 1 !== $nonce_state ) {
+        //     return new WP_Error( 'nonce_failure' );
+        // }
+
+        $dt_quick_comments = get_user_meta( $current_user_id, 'dt_quick_comments', false );
         // Filter comment ids by post type
         $dt_quick_comments_filtered = [];
 
@@ -68,7 +79,8 @@ class Disciple_Tools_Quick_Comments_Endpoints
     }
 
     public function get_all_quick_comments() {
-        $current_user_id = 2;
+        $params = $request->get_params();
+        $current_user_id = esc_sql( $params['user_id'] );
         $dt_quick_comments = get_user_meta( $current_user_id, 'dt_quick_comments', false );
         $dt_quick_comments_complete = [];
 
@@ -87,8 +99,8 @@ class Disciple_Tools_Quick_Comments_Endpoints
         // Get passed parameters
         $params = $request->get_params();
         $comment_action = esc_sql( $params['comment_action'] );
-        $comment_id = $params['comment_id'];
-        $current_user_id = 2;
+        $comment_id = esc_sql( $params['comment_id'] );
+        $current_user_id = esc_sql( $params['user_id'] );
 
         if ( empty( $comment_id ) ) {
             return 'error: comment_id is missing';
@@ -161,8 +173,9 @@ class Disciple_Tools_Quick_Comments_Endpoints
     }
 
     public function unquicken_quick_comment_by_id( WP_REST_Request $request ) {
-        $current_user_id = 2; // get_current_user_id();
-        $comment_id = esc_sql( $request->get_params()['comment_id'] );
+        $params = $request->get_params();
+        $current_user_id = esc_sql( $params['user_id'] );
+        $comment_id = esc_sql( $params['comment_id'] );
 
         $dt_quick_comments = get_user_meta( $current_user_id, 'dt_quick_comments', false ); //false returns data in an array
 
@@ -179,6 +192,7 @@ class Disciple_Tools_Quick_Comments_Endpoints
     public function __construct() {
         add_action( 'rest_api_init', [ $this, 'add_api_routes' ] );
     }
+
     public function has_permission() {
         $pass = false;
         foreach ( $this->permissions as $permission ) {
@@ -189,4 +203,5 @@ class Disciple_Tools_Quick_Comments_Endpoints
         return $pass;
     }
 }
+
 Disciple_Tools_Quick_Comments_Endpoints::instance();
