@@ -2,11 +2,11 @@
 /**
  * Plugin Name: Disciple Tools - Quick Comments Plugin
  * Plugin URI: https://github.com/DiscipleTools/disciple-tools-quick-comments
- * Description: Disciple Tools - Quick Comments Plugin is intended to help developers and integrator jumpstart their extension of the Disciple Tools system.
+ * Description: Disciple Tools - Quick Comments Plugin is intended to help users post updates more efficiently.
  * Text Domain: disciple-tools-quick-comments
  * Domain Path: /languages
  * Version:  1.5
- * Author URI: https://github.com/DiscipleTools
+ * Author URI: https://github.com/prykon
  * GitHub Plugin URI: https://github.com/DiscipleTools/disciple-tools-quick-comments
  * Requires at least: 4.7.0
  * (Requires 4.7+ because of the integration of the REST API at 4.7 and the security requirements of this milestone version.)
@@ -42,6 +42,9 @@ function disciple_tools_quick_comments() {
     $wp_theme = wp_get_theme();
     $version = $wp_theme->version;
 
+    $url = dt_get_url_path();
+    $post_type = esc_html( explode('/', $url)[0] );
+
     /*
      * Check if the Disciple.Tools theme is loaded and is the latest required version
      */
@@ -68,6 +71,18 @@ add_action( 'after_setup_theme', 'disciple_tools_quick_comments', 20 );
 
 
 
+    if ( ! function_exists( 'dt_get_url_path' ) ) {
+        function dt_get_url_path() {
+            if ( isset( $_SERVER["HTTP_HOST"] ) ) {
+                $url  = ( !isset( $_SERVER["HTTPS"] ) || @( $_SERVER["HTTPS"] != 'on' ) ) ? 'http://'. sanitize_text_field( wp_unslash( $_SERVER["HTTP_HOST"] ) ) : 'https://'. sanitize_text_field( wp_unslash( $_SERVER["HTTP_HOST"] ) );
+                if ( isset( $_SERVER["REQUEST_URI"] ) ) {
+                    $url .= sanitize_text_field( wp_unslash( $_SERVER["REQUEST_URI"] ) );
+                }
+                return trim( str_replace( get_site_url(), "", $url ), '/' );
+            }
+            return '';
+        }
+    }
 
 /**
  * Singleton class for setting up the plugin.
@@ -76,6 +91,7 @@ add_action( 'after_setup_theme', 'disciple_tools_quick_comments', 20 );
  * @access public
  */
 class Disciple_Tools_Quick_Comments {
+
 
     private static $_instance = null;
 
@@ -88,12 +104,7 @@ class Disciple_Tools_Quick_Comments {
 
     private function __construct() {
         $is_rest = dt_is_rest();
-
-        if ( strpos( dt_get_url_path(), 'disciple_tools_quick_comments_template' ) !== false ) {
-            require_once( 'rest-api/rest-api.php' ); // adds starter rest api class
-        } else {
-            require_once( 'rest-api/rest-api.php' ); //@todo find out why dropdown menu won't work without this else
-        }
+        require_once( 'rest-api/rest-api.php' ); // adds starter rest api class
 
         /**
          * @todo Decide if you want to support localization of your plugin
@@ -184,10 +195,11 @@ class Disciple_Tools_Quick_Comments {
                     <li class="quick-comment-menu" data-open="create-quick-comment-modal" style="border-bottom:1px solid #cacaca;">
                       <a><i>new quick comment...</i></a>
                     </li>
-                    <?php $quick_comments = Disciple_Tools_Quick_Comments_Endpoints::get_quick_comments( 'contacts' );
+                    <?php $quick_comments = Disciple_Tools_Quick_Comments_Endpoints::get_quick_comments( $post_type );
 
                     foreach ( $quick_comments as $qc ) {
-                        echo '<li class="quick-comment-menu" data-quick-comment-id="' . esc_html( $qc[0] ) . '">
+                        echo '
+                            <li class="quick-comment-menu" data-quick-comment-id="' . esc_html( $qc[0] ) . '">
                                 <a data-type="quick-comment">' . esc_html( $qc[2] ) . '</a>
                             </li>';
                     } ?>
