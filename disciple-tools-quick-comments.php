@@ -141,7 +141,7 @@ class Disciple_Tools_Quick_Comments {
                 dataType: "json",
                 url: window.location.origin + '/wp-json/disciple_tools_quick_comments/v1/get_quick_comments/' + postType,
                 beforeSend: function(xhr) {
-                    xhr.setRequestHeader('X-WP-Nonce', '<?php echo esc_attr( wp_create_nonce( 'wp_rest' ) ) ?>' );
+                    xhr.setRequestHeader('X-WP-Nonce', '<?php echo esc_attr( wp_create_nonce( 'wp_rest' ) ); ?>' );
                 },
                 } ).done( function( data ) {
                   //First clear current links so the new response doesn't get appended to them
@@ -165,6 +165,10 @@ class Disciple_Tools_Quick_Comments {
                               <a><i>no quick comments created yet for ` + postType + `</i></a>
                           </li>` );
                   }
+                  $('#quick-answers-dropdown-menu').append( `
+                    <li class="quick-comment-menu" data-open="manage-quick-comments-modal" style="border-top:1px solid #cacaca;"'>
+                      <a><?php esc_html_e( 'manage quick comments', 'disciple_tools' ); ?></a>
+                    </li>` );
               } );
             }
 
@@ -225,30 +229,120 @@ class Disciple_Tools_Quick_Comments {
         </button>
 
         <div class="reveal" id="create-quick-comment-modal" data-reveal data-reset-on-close>
-        <h3><?php esc_html_e( 'Quick Comments', 'disciple_tools' )?></h3>
-        <p><?php esc_html_e( 'Add a new quick comment', 'disciple_tools' )?></p>
+            <h3><?php esc_html_e( 'Quick Comments', 'disciple_tools' ); ?></h3>
+            <p><?php esc_html_e( 'Add a new quick comment', 'disciple_tools' ); ?></p>
 
-        <form class="js-create-quick-comment">
-            <label for="title">
-                <?php esc_html_e( "Quick Comment", "disciple_tools" ); ?>
-            </label>
-            <input name="title" id="new-quick-comment" type="text" placeholder="<?php esc_html_e( "Quick Comments", 'disciple_tools' ); ?>" required aria-describedby="name-help-text">
-            <p class="help-text" id="name-help-text"><?php esc_html_e( "This is required", "disciple_tools" ); ?></p>
-        </form>
+            <form class="js-create-quick-comment">
+                <label for="title">
+                    <?php esc_html_e( 'Quick Comment', 'disciple_tools' ); ?>
+                </label>
+                <input name="title" id="new-quick-comment" type="text" placeholder="<?php esc_html_e( "Quick Comments", 'disciple_tools' ); ?>" required aria-describedby="name-help-text">
+                <p class="help-text" id="name-help-text"><?php esc_html_e( "This is required", "disciple_tools" ); ?></p>
+            </form>
 
-        <div class="grid-x">
-            <button class="button button-cancel clear" data-close aria-label="Close reveal" type="button">
-                <?php echo esc_html__( 'Cancel', 'disciple_tools' )?>
-            </button>
-            <button class="button" data-close type="button" id="create-quick-comment-return">
-                <?php esc_html_e( 'Create and post quick comment', 'disciple_tools' ); ?>
-            </button>
-            <button class="close-button" data-close aria-label="Close modal" type="button">
-                <span aria-hidden="true">&times;</span>
-            </button>
+            <div class="grid-x">
+                <button class="button button-cancel clear" data-close aria-label="Close reveal" type="button">
+                    <?php echo esc_html__( 'Cancel', 'disciple_tools' )?>
+                </button>
+                <button class="button" data-close type="button" id="create-quick-comment-return">
+                    <?php esc_html_e( 'Create and post quick comment', 'disciple_tools' ); ?>
+                </button>
+                <button class="close-button" data-close aria-label="Close modal" type="button">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
         </div>
-    </div>
+
+        <div class="reveal" id="manage-quick-comments-modal" data-reveal data-reset-on-close>
+            <h3><?php esc_html_e( 'Manage Quick Comments', 'disciple_tools' )?></h3>
+            <p><?php esc_html_e( 'Select which quick comments you want to un-quicken', 'disciple_tools' ); ?></p>
+            <div class="wrap">
+            <div id="poststuff">
+                <div id="post-body" class="metabox-holder columns-2">
+                    <div id="post-body-content">
+                        <?php
+                            $this->main_column( $post_type );
+                        ?>
+                    </div><!-- end post-body-content -->
+                </div><!-- post-body meta box container -->
+            </div><!--poststuff end -->
+        </div>
+        </div>
           <?php
+    }
+
+    public function main_column( $post_type = 'all') {
+        if ( $post_type !== 'all' ) {
+            $rest_request = new WP_REST_Request( 'GET', '/disciple_tools_quick_comments/v1/get_quick_comments/' . esc_sql( $post_type ) );
+            $rest_request->set_query_params( [ 'post_type' => esc_sql( $post_type ) ] );
+            $response = rest_do_request( $rest_request );
+            $server = rest_get_server();
+            $quick_comments = $server->response_to_data( $response, false );
+        } else {
+            $rest_request = new WP_REST_Request( 'GET', '/disciple_tools_quick_comments/v1/get_all_quick_comments' );
+            $response = rest_do_request( $rest_request );
+            $server = rest_get_server();
+            $quick_comments = $server->response_to_data( $response, false );
+        }
+
+        ?>
+        <!-- Box -->
+        <table class="widefat striped">
+            <thead>
+                <tr>
+                    <th>Quick Comments</th>
+                    <th>Type</th>
+                    <th style="text-align: right;">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php if ( ! $quick_comments ) : ?>
+                <tr>
+                    <td colspan="3">
+                        <i>No quick comments created yet</i>
+                    </td>
+                </tr>
+            <?php endif; ?>
+                <?php foreach ( $quick_comments as $qc ) : ?>
+                    <?php
+                        $comment_id = $qc[0];
+                        $comment_post_type = $qc[1];
+                        $comment_content = $qc[2];
+                    ?>
+                <tr>
+                    <td>
+                        <?php echo esc_html( $comment_content ); ?>
+                    </td>
+                    <td>
+                        <?php echo esc_html( $comment_post_type ); ?>
+                    </td>
+                    <td style="text-align: right;">
+                        <a href="javascript:unquicken_comment(<?php echo esc_html( $comment_id ); ?>);">un-quicken</a>
+                    </td>
+                </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+
+        <script>
+            function unquicken_comment( commentId ) {
+                jQuery( function( $ ) {
+                    $.ajax( {
+                        type: "GET",
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json",
+                        url: window.location.origin + '/wp-json/disciple_tools_quick_comments/v1/update_quick_comments/unquicken/' + commentId,
+                        beforeSend: function(xhr) {
+                            xhr.setRequestHeader('X-WP-Nonce', '<?php echo esc_attr( wp_create_nonce( 'wp_rest' ) ) ?>' );
+                        },
+                    } )
+                    .done( function( data ) {
+                        window.location.reload()
+                    } );
+                })
+            }
+        </script>
+        <?php
     }
 
     /**
