@@ -42,6 +42,7 @@ class Disciple_Tools_Quick_Comments_Endpoints
         );
     }
 
+
     // Get the quick comments for the dropdown menu
     public function get_quick_comments( WP_REST_Request $request ) {
         $params = $request->get_params();

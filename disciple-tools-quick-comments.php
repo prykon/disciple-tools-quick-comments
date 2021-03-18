@@ -95,10 +95,6 @@ class Disciple_Tools_Quick_Comments {
             require_once( 'rest-api/rest-api.php' ); //@todo find out why dropdown menu won't work without this else
         }
 
-        if ( is_admin() ) {
-            require_once( 'admin/admin-menu-and-tabs.php' ); // adds starter admin page and section for plugin
-        }
-
         /**
          * @todo Decide if you want to support localization of your plugin
          * To remove: delete the line below and remove the folder named /languages
@@ -187,6 +183,8 @@ class Disciple_Tools_Quick_Comments {
                         xhr.setRequestHeader('X-WP-Nonce', '<?php echo esc_attr( wp_create_nonce( 'wp_rest' ) ) ?>' );
                     },
                   } );
+                } ).done( function( new_data ) {
+                    window.location.reload();
                 } );
             } );
 
