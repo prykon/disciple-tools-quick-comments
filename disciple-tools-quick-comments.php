@@ -299,7 +299,7 @@ class Disciple_Tools_Quick_Comments {
                 <?php if ( ! $quick_comments ) : ?>
                 <tr>
                     <td colspan="3">
-                        <i>No quick comments created yet</i>
+                        <i>No quick comments created yet. <a data-open="create-quick-comment-modal">Create one now.</a></i>
                     </td>
                 </tr>
             <?php endif; ?>
