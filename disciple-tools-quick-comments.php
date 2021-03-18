@@ -20,8 +20,6 @@
 
 /**
  * Refactoring (renaming) this plugin as your own:
- * 1. @todo Refactor all occurrences of the name Disciple_Tools_Quick_Comments, disciple_tools_quick_comments, disciple-tools-quick-comments, quick_comment, and "Quick Comments Plugin"
- * 2. @todo Rename the `disciple-tools-quick-comments.php and menu-and-tabs.php files.
  * 3. @todo Update the README.md and LICENSE
  * 4. @todo Update the default.pot file if you intend to make your plugin multilingual. Use a tool like POEdit
  */
@@ -68,8 +66,6 @@ function disciple_tools_quick_comments() {
 }
 
 add_action( 'after_setup_theme', 'disciple_tools_quick_comments', 20 );
-
-
 
     if ( ! function_exists( 'dt_get_url_path' ) ) {
         function dt_get_url_path() {
@@ -176,11 +172,16 @@ class Disciple_Tools_Quick_Comments {
           } );
 
             $( document ).ready( function() {
-              let postType = window.detailsSettings.post_type;
-              get_quick_comments( postType );
+                try {
+                    let postType = window.detailsSettings.post_type;
+                }
+                catch(err) {
+                   console.log( 'error' );
+                   console.log( err );
+                   jQuery( '#errors' ).append( err.responseText);
+                }
             })
         </script>
-
         <?php
     }
 
@@ -262,7 +263,6 @@ class Disciple_Tools_Quick_Comments {
         $quick_comments = Disciple_Tools_Quick_Comments_Endpoints::get_quick_comments( $post_type );
 
         ?>
-        <!-- Box -->
         <table class="widefat striped">
             <thead>
                 <tr>
@@ -299,7 +299,6 @@ class Disciple_Tools_Quick_Comments {
                 <?php endforeach; ?>
             </tbody>
         </table>
-
         <script>
             function unquicken_comment( commentId ) {
                 jQuery( function( $ ) {
@@ -334,22 +333,6 @@ class Disciple_Tools_Quick_Comments {
         }
 
         return $links_array;
-    }
-
-
-    /**
-     * Method that runs only when the plugin is activated.
-     *
-     * @since  0.1
-     * @access public
-     * @return void
-     */
-    public static function activation() {
-      //update_user_meta acts as add_user_meta if name doesn't exist
-      // $dt_quick_comments = array();
-      // $dt_quick_comments['contacts'] = "";
-      // $dt_quick_comments['groups'] = "";
-      // update_user_meta('dt_quick_comments', 2, $dt_quick_comments );
     }
 
     /**
@@ -412,11 +395,6 @@ class Disciple_Tools_Quick_Comments {
         return null;
     }
 }
-
-
-// Register activation hook.
-register_activation_hook( __FILE__, [ 'Disciple_Tools_Quick_Comments', 'activation' ] );
-register_deactivation_hook( __FILE__, [ 'Disciple_Tools_Quick_Comments', 'deactivation' ] );
 
 
 if ( ! function_exists( 'disciple_tools_quick_comments_hook_admin_notice' ) ) {

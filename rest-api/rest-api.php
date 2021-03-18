@@ -115,7 +115,6 @@ class Disciple_Tools_Quick_Comments_Endpoints
             }
         }
 
-
         switch ( $comment_action ) {
             // Quicken the comment
             case 'quicken':
