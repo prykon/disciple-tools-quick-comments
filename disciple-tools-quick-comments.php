@@ -125,49 +125,9 @@ class Disciple_Tools_Quick_Comments {
             self::add_make_quick_comment_link();
     }
 
-    public function add_make_quick_comment_link(){
-        $qc_nonce = wp_create_nonce( 'qc_wp_rest' ); ?>
+    public function add_make_quick_comment_link() {
         ?>
-          <script>
-            // Get quick comments and add them to dropdown menu
-            function get_quick_comments( postType ) {
-              $.ajax( {
-                type: "GET",
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
-                url: window.location.origin + '/wp-json/disciple_tools_quick_comments/v1/get_quick_comments/' + postType,
-                beforeSend: function(xhr) {
-                    xhr.setRequestHeader('X-WP-Nonce', '<?php echo esc_attr( wp_create_nonce( 'wp_rest' ) ); ?>' );
-                },
-                } ).done( function( data ) {
-                  //First clear current links so the new response doesn't get appended to them
-                  let new_quick_comment_text = 'new quick comment...';
-                  $('#quick-answers-dropdown-menu').contents().remove();
-                  $('#quick-answers-dropdown-menu').append( `
-                    <li class="quick-comment-menu" data-open="create-quick-comment-modal" style="border-bottom:1px solid #cacaca;">
-                      <a><i>` + new_quick_comment_text + `</i></a>
-                    </li>`);
-
-                  if ( data.length > 0 ) {
-                    for( var i = 0; i < data.length; i++ ) {
-                      $( '#quick-answers-dropdown-menu' ).append( `
-                           <li class="quick-comment-menu" data-quick-comment-id="` + data[i][0] + `">
-                               <a data-type="quick-comment">` + data[i][2] + `</a>
-                           </li>` );
-                    }
-                  } else {
-                      $( '#quick-answers-dropdown-menu' ).append( `
-                          <li class="quick-comment-menu">
-                              <a><i>no quick comments created yet for ` + postType + `</i></a>
-                          </li>` );
-                  }
-                  $('#quick-answers-dropdown-menu').append( `
-                    <li class="quick-comment-menu" data-open="manage-quick-comments-modal" style="border-top:1px solid #cacaca;">
-                      <a><?php esc_html_e( 'manage quick comments', 'disciple_tools' ); ?></a>
-                    </li>` );
-              } );
-            }
-
+        <script>
             // Create a new quick comment
             $( '#create-quick-comment-return' ).on( 'click', function () {
                 let commentContent = $('#new-quick-comment').val();
@@ -221,6 +181,20 @@ class Disciple_Tools_Quick_Comments {
                        style="background-color: #00897B; color: white;">Quick Comments
                    </a>
                 <ul id="quick-answers-dropdown-menu" class="menu is-dropdown-submenu" style="width: max-content">
+                    <li class="quick-comment-menu" data-open="create-quick-comment-modal" style="border-bottom:1px solid #cacaca;">
+                      <a><i>new quick comment...</i></a>
+                    </li>
+                    <?php $quick_comments = Disciple_Tools_Quick_Comments_Endpoints::get_quick_comments( 'contacts' );
+
+                    foreach ( $quick_comments as $qc ) {
+                        echo '<li class="quick-comment-menu" data-quick-comment-id="' . esc_html( $qc[0] ) . '">
+                                <a data-type="quick-comment">' . esc_html( $qc[2] ) . '</a>
+                            </li>';
+                    } ?>
+                    
+                    <li class="quick-comment-menu" data-open="manage-quick-comments-modal" style="border-top:1px solid #cacaca;">
+                      <a>manage quick comments</a>
+                    </li>
                 </ul>
             </li>
         </ul>
