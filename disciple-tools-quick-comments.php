@@ -144,7 +144,7 @@ class Disciple_Tools_Quick_Comments {
                   let new_quick_comment_text = 'new quick comment...';
                   $('#quick-answers-dropdown-menu').contents().remove();
                   $('#quick-answers-dropdown-menu').append( `
-                    <li class="quick-comment-menu" data-open="create-quick-comment-modal" style="border-bottom:1px solid #cacaca;"'>
+                    <li class="quick-comment-menu" data-open="create-quick-comment-modal" style="border-bottom:1px solid #cacaca;">
                       <a><i>` + new_quick_comment_text + `</i></a>
                     </li>`);
 
@@ -162,30 +162,33 @@ class Disciple_Tools_Quick_Comments {
                           </li>` );
                   }
                   $('#quick-answers-dropdown-menu').append( `
-                    <li class="quick-comment-menu" data-open="manage-quick-comments-modal" style="border-top:1px solid #cacaca;"'>
+                    <li class="quick-comment-menu" data-open="manage-quick-comments-modal" style="border-top:1px solid #cacaca;">
                       <a><?php esc_html_e( 'manage quick comments', 'disciple_tools' ); ?></a>
                     </li>` );
               } );
             }
 
+            // Create a new quick comment
             $( '#create-quick-comment-return' ).on( 'click', function () {
-            let commentContent = $('#new-quick-comment').val();
-            let postId = window.detailsSettings.post_id;
-            let postType = window.detailsSettings.post_type;
-            window.API.post_comment( postType, postId, commentContent, 'comment' ).done( function( data ) {
-              let last_comment_id = data.comment_ID;
-                  $.ajax( {
-                    type: "GET",
-                     contentType: "application/json; charset=utf-8",
-                     dataType: "json",
-                     url: window.location.origin + '/wp-json/disciple_tools_quick_comments/v1/update_quick_comments/quicken/' + last_comment_id,
-                     beforeSend: function(xhr) {
-                        xhr.setRequestHeader('X-WP-Nonce', '<?php echo esc_attr( wp_create_nonce( 'wp_rest' ) ) ?>' );
-                    },
-                  } );
-                } ).done( function( new_data ) {
-                    get_quick_comments( window.detailsSettings.post_type )
-                } );
+                let commentContent = $('#new-quick-comment').val();
+                let postId = window.detailsSettings.post_id;
+                let postType = window.detailsSettings.post_type;
+                window.API.post_comment( postType, postId, commentContent, 'comment' ).done( function( data ) {
+                  let last_comment_id = data.comment_ID;
+                    $.ajax( {
+                        type: "GET",
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json",
+                        url: window.location.origin + '/wp-json/disciple_tools_quick_comments/v1/update_quick_comments/quicken/' + last_comment_id,
+                        beforeSend: function(xhr) {
+                            xhr.setRequestHeader('X-WP-Nonce', '<?php echo esc_attr( wp_create_nonce( 'wp_rest' ) ) ?>' );
+                            },
+                        } );
+                    $("ul").find("[data-open='create-quick-comment-modal']").after(`
+                        <li class="quick-comment-menu" data-quick-comment-id="` + last_comment_id + `">
+                               <a data-type="quick-comment">` + commentContent + `</a>
+                           </li>` );
+                } )
             } );
 
           // Post the quick comment from dropdown menu
