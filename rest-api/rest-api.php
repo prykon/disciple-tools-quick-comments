@@ -16,7 +16,7 @@ class Disciple_Tools_Quick_Comments_Endpoints
         register_rest_route(
             $namespace, '/get_quick_comments/(?P<post_type>\w+)', [
                 'methods'  => 'GET',
-                'callback' => [ $this, 'get_quick_comments' ],
+                'callback' => [ $this, 'get_quick_comments_endpoint' ],
             ]
         );
 
@@ -43,10 +43,7 @@ class Disciple_Tools_Quick_Comments_Endpoints
     }
 
 
-    // Get the quick comments for the dropdown menu
-    public function get_quick_comments( WP_REST_Request $request ) {
-        $params = $request->get_params();
-        $post_type = esc_sql( $request['post_type'] );
+    public static function get_quick_comments( $post_type ){
         $current_user_id = get_current_user_id();
 
         $dt_quick_comments = get_user_meta( $current_user_id, 'dt_quick_comments', false );
@@ -65,6 +62,12 @@ class Disciple_Tools_Quick_Comments_Endpoints
             }
         }
         return $dt_quick_comments_filtered;
+    }
+    // Get the quick comments for the dropdown menu
+    public function get_quick_comments_endpoint( WP_REST_Request $request ) {
+        $params = $request->get_params();
+        $post_type = esc_sql( $request['post_type'] );
+        return $this->get_quick_comments( $post_type );
     }
 
     public function get_all_quick_comments() {
@@ -98,8 +101,11 @@ class Disciple_Tools_Quick_Comments_Endpoints
         }
 
         // Get quick comments
-        $dt_quick_comments = get_user_meta( $current_user_id, 'dt_quick_comments' ); //@todo get_current_user_id
-        $dt_current_comments = $dt_quick_comments[0];
+        $dt_quick_comments = get_user_meta( $current_user_id, 'dt_quick_comments', true ); //@todo get_current_user_id
+        if ( !$dt_quick_comments ){
+            $dt_quick_comments = [];
+        }
+        $dt_current_comments = $dt_quick_comments;
         $new_quick_comments = array();
         $new_quick_comments[] = $comment_id;
 

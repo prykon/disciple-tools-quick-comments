@@ -154,7 +154,7 @@ class Disciple_Tools_Quick_Comments {
                            <li class="quick-comment-menu" data-quick-comment-id="` + data[i][0] + `">
                                <a data-type="quick-comment">` + data[i][2] + `</a>
                            </li>` );
-                    }                  
+                    }
                   } else {
                       $( '#quick-answers-dropdown-menu' ).append( `
                           <li class="quick-comment-menu">
@@ -184,7 +184,7 @@ class Disciple_Tools_Quick_Comments {
                     },
                   } );
                 } ).done( function( new_data ) {
-                    window.location.reload();
+                    get_quick_comments( window.detailsSettings.post_type )
                 } );
             } );
 
@@ -206,7 +206,7 @@ class Disciple_Tools_Quick_Comments {
               get_quick_comments( postType );
             })
         </script>
-        
+
         <?php
     }
 
@@ -221,7 +221,7 @@ class Disciple_Tools_Quick_Comments {
                 </ul>
             </li>
         </ul>
-        
+
         <button class="help-button" data-section="quick-comments-help-text">
             <img class="help-icon" src="<?php echo esc_html( get_template_directory_uri() ); ?>/dt-assets/images/help.svg"/>
         </button>
@@ -270,18 +270,7 @@ class Disciple_Tools_Quick_Comments {
     }
 
     public function main_column( $post_type = 'all') {
-        if ( $post_type !== 'all' ) {
-            $rest_request = new WP_REST_Request( 'GET', '/disciple_tools_quick_comments/v1/get_quick_comments/' . esc_sql( $post_type ) );
-            $rest_request->set_query_params( [ 'post_type' => esc_sql( $post_type ) ] );
-            $response = rest_do_request( $rest_request );
-            $server = rest_get_server();
-            $quick_comments = $server->response_to_data( $response, false );
-        } else {
-            $rest_request = new WP_REST_Request( 'GET', '/disciple_tools_quick_comments/v1/get_all_quick_comments' );
-            $response = rest_do_request( $rest_request );
-            $server = rest_get_server();
-            $quick_comments = $server->response_to_data( $response, false );
-        }
+        $quick_comments = Disciple_Tools_Quick_Comments_Endpoints::get_quick_comments( $post_type );
 
         ?>
         <!-- Box -->
