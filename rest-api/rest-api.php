@@ -47,6 +47,9 @@ class Disciple_Tools_Quick_Comments_Endpoints
         $current_user_id = get_current_user_id();
 
         $dt_quick_comments = get_user_meta( $current_user_id, 'dt_quick_comments', false );
+        if ( ! $dt_quick_comments ) {
+            add_user_meta( $current_user_id, 'dt_quick_comments', [] );
+        }
         // Filter comment ids by post type
         $dt_quick_comments_filtered = [];
 
