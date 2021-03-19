@@ -41,7 +41,7 @@ function disciple_tools_quick_comments() {
     $version = $wp_theme->version;
 
     $url = dt_get_url_path();
-    $post_type = esc_html( explode('/', $url)[0] );
+    $post_type = esc_html( explode( '/', $url )[0] );
 
     /*
      * Check if the Disciple.Tools theme is loaded and is the latest required version
@@ -67,18 +67,18 @@ function disciple_tools_quick_comments() {
 
 add_action( 'after_setup_theme', 'disciple_tools_quick_comments', 20 );
 
-    if ( ! function_exists( 'dt_get_url_path' ) ) {
-        function dt_get_url_path() {
-            if ( isset( $_SERVER["HTTP_HOST"] ) ) {
-                $url  = ( !isset( $_SERVER["HTTPS"] ) || @( $_SERVER["HTTPS"] != 'on' ) ) ? 'http://'. sanitize_text_field( wp_unslash( $_SERVER["HTTP_HOST"] ) ) : 'https://'. sanitize_text_field( wp_unslash( $_SERVER["HTTP_HOST"] ) );
-                if ( isset( $_SERVER["REQUEST_URI"] ) ) {
-                    $url .= sanitize_text_field( wp_unslash( $_SERVER["REQUEST_URI"] ) );
-                }
-                return trim( str_replace( get_site_url(), "", $url ), '/' );
+if ( ! function_exists( 'dt_get_url_path' ) ) {
+    function dt_get_url_path() {
+        if ( isset( $_SERVER["HTTP_HOST"] ) ) {
+            $url  = ( !isset( $_SERVER["HTTPS"] ) || @( $_SERVER["HTTPS"] != 'on' ) ) ? 'http://'. sanitize_text_field( wp_unslash( $_SERVER["HTTP_HOST"] ) ) : 'https://'. sanitize_text_field( wp_unslash( $_SERVER["HTTP_HOST"] ) );
+            if ( isset( $_SERVER["REQUEST_URI"] ) ) {
+                $url .= sanitize_text_field( wp_unslash( $_SERVER["REQUEST_URI"] ) );
             }
-            return '';
+            return trim( str_replace( get_site_url(), "", $url ), '/' );
         }
+        return '';
     }
+}
 
 /**
  * Singleton class for setting up the plugin.
@@ -204,19 +204,18 @@ class Disciple_Tools_Quick_Comments {
                       <a><i>new quick comment...</i></a>
                     </li>
                     <?php $quick_comments = Disciple_Tools_Quick_Comments_Endpoints::get_quick_comments( $post_type );
-
                     if ( ! $quick_comments ) {
-                      echo '
+                        echo '
                             <li class="quick-comment-menu">
                                 <a data-open="create-quick-comment-modal" id="no-quick-comments" style="color:#717171;"><i>No quick comments created yet.</i></a>
                             </li>';
                     } else {
-                      foreach ( $quick_comments as $qc ) {
-                          echo '
+                        foreach ( $quick_comments as $qc ) {
+                            echo '
                               <li class="quick-comment-menu" data-quick-comment-id="' . esc_html( $qc[0] ) . '">
                                   <a data-type="quick-comment">' . esc_html( $qc[2] ) . '</a>
                               </li>';
-                      }
+                          }
                     }
                     ?>
                     
