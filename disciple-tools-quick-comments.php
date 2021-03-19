@@ -160,8 +160,9 @@ class Disciple_Tools_Quick_Comments {
                     
                     $("ul").find("[data-open='create-quick-comment-modal']").after(`
                         <li class="quick-comment-menu" data-quick-comment-id="` + last_comment_id + `">
-                               <a data-type="quick-comment">` + commentContent + `</a>
+                               <a data-type="quick-comment" id="newest-quick-comment">` + commentContent + `</a>
                            </li>` );
+                    $('#newest-quick-comment').click();
                 } )
             } );
 
