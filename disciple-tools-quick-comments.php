@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: Disciple Tools - Quick Comments Plugin
- * Plugin URI: https://github.com/DiscipleTools/disciple-tools-quick-comments
+ * Plugin URI: https://github.com/prykon/disciple-tools-quick-comments
  * Description: Disciple Tools - Quick Comments Plugin is intended to help users post updates more efficiently.
  * Text Domain: disciple-tools-quick-comments
  * Domain Path: /languages
@@ -129,7 +129,6 @@ class Disciple_Tools_Quick_Comments {
           <p>You can create a posted comment into a quick comment by clicking on the \'create quick comment\' link next to it.</p>
         </div>
         <?php
-            self::add_make_quick_comment_link();
     }
 
     public function add_make_quick_comment_link() {
@@ -151,6 +150,14 @@ class Disciple_Tools_Quick_Comments {
                             xhr.setRequestHeader('X-WP-Nonce', '<?php echo esc_attr( wp_create_nonce( 'wp_rest' ) ) ?>' );
                             },
                         } );
+                    //Check if there's a "no quick comments created yet" row and delete it
+                    try {
+                      $("#no-quick-comments").remove();
+                    }
+                    catch(err){
+                      return true; // It's ok if there's no "no quick comments created yet" row.
+                    }
+                    
                     $("ul").find("[data-open='create-quick-comment-modal']").after(`
                         <li class="quick-comment-menu" data-quick-comment-id="` + last_comment_id + `">
                                <a data-type="quick-comment">` + commentContent + `</a>
@@ -201,7 +208,7 @@ class Disciple_Tools_Quick_Comments {
                     if ( ! $quick_comments ) {
                       echo '
                             <li class="quick-comment-menu">
-                                <a data-open="create-quick-comment-modal" style="color:#717171;"><i>No quick comments created yet.</i></a>
+                                <a data-open="create-quick-comment-modal" id="no-quick-comments" style="color:#717171;"><i>No quick comments created yet.</i></a>
                             </li>';
                     } else {
                       foreach ( $quick_comments as $qc ) {
@@ -265,6 +272,7 @@ class Disciple_Tools_Quick_Comments {
         </div>
         </div>
           <?php
+            self::add_make_quick_comment_link();
     }
 
     public function main_column( $post_type = 'all') {
