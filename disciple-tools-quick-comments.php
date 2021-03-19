@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: Disciple Tools - Quick Comments Plugin
- * Plugin URI: https://github.com/DiscipleTools/disciple-tools-quick-comments
+ * Plugin URI: https://github.com/prykon/disciple-tools-quick-comments
  * Description: Disciple Tools - Quick Comments Plugin is intended to help users post updates more efficiently.
  * Text Domain: disciple-tools-quick-comments
  * Domain Path: /languages
@@ -203,7 +203,7 @@ class Disciple_Tools_Quick_Comments {
                                 <a data-type="quick-comment">' . esc_html( $qc[2] ) . '</a>
                             </li>';
                     } ?>
-                    
+
                     <li class="quick-comment-menu" data-open="manage-quick-comments-modal" style="border-top:1px solid #cacaca;">
                       <a>manage quick comments</a>
                     </li>
