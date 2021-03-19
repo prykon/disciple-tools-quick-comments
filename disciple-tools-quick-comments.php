@@ -198,12 +198,20 @@ class Disciple_Tools_Quick_Comments {
                     </li>
                     <?php $quick_comments = Disciple_Tools_Quick_Comments_Endpoints::get_quick_comments( $post_type );
 
-                    foreach ( $quick_comments as $qc ) {
-                        echo '
-                            <li class="quick-comment-menu" data-quick-comment-id="' . esc_html( $qc[0] ) . '">
-                                <a data-type="quick-comment">' . esc_html( $qc[2] ) . '</a>
+                    if ( ! $quick_comments ) {
+                      echo '
+                            <li class="quick-comment-menu">
+                                <a data-open="create-quick-comment-modal" style="color:#717171;"><i>No quick comments created yet.</i></a>
                             </li>';
-                    } ?>
+                    } else {
+                      foreach ( $quick_comments as $qc ) {
+                          echo '
+                              <li class="quick-comment-menu" data-quick-comment-id="' . esc_html( $qc[0] ) . '">
+                                  <a data-type="quick-comment">' . esc_html( $qc[2] ) . '</a>
+                              </li>';
+                      }
+                    }
+                    ?>
                     
                     <li class="quick-comment-menu" data-open="manage-quick-comments-modal" style="border-top:1px solid #cacaca;">
                       <a>manage quick comments</a>
