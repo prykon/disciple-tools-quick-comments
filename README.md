@@ -20,7 +20,7 @@ Go into any post page (contacts, groups, etc.) and you'll see a new dropdown men
 
 #### Will Not Do
 
-- Will not delete comment when _unquickened_
+- Will not delete posted comments upon _unquickening_ a quick comment
 - Will not allow you to add quick comments from other post types
 
 
