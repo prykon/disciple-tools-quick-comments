@@ -1,5 +1,3 @@
-[![Build Status](https://travis-ci.com/DiscipleTools/disciple-tools-quick-comments.svg?branch=master)](https://travis-ci.com/DiscipleTools/disciple-tools-quick-comments)
-
 # Disciple Tools - Quick Comments
 
 Tired of writing the same old comments every day? The Quick Comments plugin will help you speed up the process!
