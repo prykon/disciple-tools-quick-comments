@@ -1,13 +1,13 @@
 <?php
 /**
- * Plugin Name: Disciple Tools - Quick Comments Plugin
+ * Plugin Name: Disciple Tools - Quick Comments
  * Plugin URI: https://github.com/prykon/disciple-tools-quick-comments
  * Description: Disciple Tools - Quick Comments Plugin is intended to help users post updates more efficiently.
  * Text Domain: disciple-tools-quick-comments
  * Domain Path: /languages
- * Version:  1.5
+ * Version:  1.0
  * Author URI: https://github.com/prykon
- * GitHub Plugin URI: https://github.com/DiscipleTools/disciple-tools-quick-comments
+ * GitHub Plugin URI: https://github.com/prykon/disciple-tools-quick-comments
  * Requires at least: 4.7.0
  * (Requires 4.7+ because of the integration of the REST API at 4.7 and the security requirements of this milestone version.)
  * Tested up to: 5.6
@@ -481,21 +481,21 @@ if ( ! function_exists( "dt_hook_ajax_notice_handler" )){
  * Also, see the instructions for version updating to understand the steps involved.
  * @see https://github.com/DiscipleTools/disciple-tools-version-control/wiki/How-to-Update-the-Starter-Plugin
  */
-//add_action( 'plugins_loaded', function (){
-//    if ( is_admin() ){
-//        // Check for plugin updates
-//        if ( ! class_exists( 'Puc_v4_Factory' ) ) {
-//            if ( file_exists( get_template_directory() . '/dt-core/libraries/plugin-update-checker/plugin-update-checker.php' )){
-//                require( get_template_directory() . '/dt-core/libraries/plugin-update-checker/plugin-update-checker.php' );
-//            }
-//        }
-//        if ( class_exists( 'Puc_v4_Factory' ) ){
-//            Puc_v4_Factory::buildUpdateChecker(
-//                'https://raw.githubusercontent.com/DiscipleTools/disciple-tools-facebook/master/version-control.json',
-//                __FILE__,
-//                'disciple-tools-facebook'
-//            );
-//
-//        }
-//    }
-//} );
+add_action( 'plugins_loaded', function (){
+    if ( is_admin() ){
+        // Check for plugin updates
+        if ( ! class_exists( 'Puc_v4_Factory' ) ) {
+            if ( file_exists( get_template_directory() . '/dt-core/libraries/plugin-update-checker/plugin-update-checker.php' )){
+                require( get_template_directory() . '/dt-core/libraries/plugin-update-checker/plugin-update-checker.php' );
+            }
+        }
+        if ( class_exists( 'Puc_v4_Factory' ) ){
+            Puc_v4_Factory::buildUpdateChecker(
+                'https://raw.githubusercontent.com/prykon/disciple-tools-quick-comments/master/version-control.json',
+                __FILE__,
+                'disciple-tools-quick-comments'
+            );
+
+        }
+    }
+} );
