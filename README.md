@@ -43,4 +43,4 @@ system for git. For a more details on contribution see the
 
 ## Screenshots
 
-![screenshot](https://via.placeholder.com/600x150)
+![screenshot](https://raw.githubusercontent.com/prykon/disciple-tools-quick-comments/master/assets/demo.gif)
