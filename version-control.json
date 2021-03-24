@@ -1,29 +1,29 @@
 {
 
-  "name": "Disciple Tools - Quick Comments Plugin",
-  "version": "1.5",
+  "name": "Disciple Tools - Quick Comments",
+  "version": "1.0",
   "last_updated": "2021-01",
-  "author": "Disciple Tools",
+  "author": "prykon",
   "author_homepage": "https://disciple.tools",
   "git_owner": "DiscipleTools",
   "git_repo": "disciple-tools-quick-comments",
-  "download_url": "https://github.com/DiscipleTools/disciple-tools-quick-comments/releases/latest/download/disciple-tools-quick-comments.zip",
-  "homepage": "https://github.com/DiscipleTools/disciple-tools-quick-comments",
-  "issues_url": "https://github.com/DiscipleTools/disciple-tools-quick-comments/issues",
-  "projects_url": "https://github.com/DiscipleTools/disciple-tools-quick-comments/projects/1",
-  "discussions_url": "https://github.com/DiscipleTools/disciple-tools-quick-comments/discussions",
-  "wiki_url": "https://github.com/DiscipleTools/disciple-tools-quick-comments/wiki",
-  "license_url": "https://raw.githubusercontent.com/DiscipleTools/disciple-tools-quick-comments/master/LICENSE",
-  "readme_url": "https://raw.githubusercontent.com/DiscipleTools/disciple-tools-quick-comments/master/README.md",
+  "download_url": "https://github.com/prykon/disciple-tools-quick-comments/releases/latest/download/disciple-tools-quick-comments.zip",
+  "homepage": "https://github.com/prykon/disciple-tools-quick-comments",
+  "issues_url": "https://github.com/prykon/disciple-tools-quick-comments/issues",
+  "projects_url": "https://github.com/prykon/disciple-tools-quick-comments/projects/1",
+  "discussions_url": "https://github.com/prykon/disciple-tools-quick-comments/discussions",
+  "wiki_url": "https://github.com/prykon/disciple-tools-quick-comments/wiki",
+  "license_url": "https://raw.githubusercontent.com/prykon/disciple-tools-quick-comments/master/LICENSE",
+  "readme_url": "https://raw.githubusercontent.com/prykon/disciple-tools-quick-comments/master/README.md",
   "requires": "4.7",
   "tested": "5.6",
   "upgrade_notice": "Upgrade to get the latest features.",
   "banners": {
-    "low": "https://raw.githubusercontent.com/DiscipleTools/disciple-tools-version-control/master/images/dt-placeholder-772x250.jpg",
-    "high": "https://raw.githubusercontent.com/DiscipleTools/disciple-tools-version-control/master/images/dt-placeholder-1544x500.jpg"
+    "low": "https://raw.githubusercontent.com/prykon/disciple-tools-version-control/master/images/dt-placeholder-772x250.jpg",
+    "high": "https://raw.githubusercontent.com/prykon/disciple-tools-version-control/master/images/dt-placeholder-1544x500.jpg"
   },
   "sections": {
-    "description": "Kick start your Disciple.Tools plugin project with this template! This plugin is a collection of our best practices and code bases for creating Disciple.Tools plugins. ",
+    "description": "Disciple Tools - Quick Comments is intended to help users post updates more efficiently.",
     "installation": "(Required) You must have Disciple.Tools Theme installed before using this plugin. Once Disciple.Tools is installed, you can use the normal Plugin system to install the plugin.",
     "changelog": ""
   }
