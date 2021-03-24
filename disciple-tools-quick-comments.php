@@ -1,13 +1,13 @@
 <?php
 /**
- * Plugin Name: Disciple Tools - Quick Comments Plugin
+ * Plugin Name: Disciple Tools - Quick Comments
  * Plugin URI: https://github.com/prykon/disciple-tools-quick-comments
  * Description: Disciple Tools - Quick Comments Plugin is intended to help users post updates more efficiently.
  * Text Domain: disciple-tools-quick-comments
  * Domain Path: /languages
- * Version:  1.5
+ * Version:  1.0
  * Author URI: https://github.com/prykon
- * GitHub Plugin URI: https://github.com/DiscipleTools/disciple-tools-quick-comments
+ * GitHub Plugin URI: https://github.com/prykon/disciple-tools-quick-comments
  * Requires at least: 4.7.0
  * (Requires 4.7+ because of the integration of the REST API at 4.7 and the security requirements of this milestone version.)
  * Tested up to: 5.6
@@ -80,6 +80,7 @@ if ( ! function_exists( 'dt_get_url_path' ) ) {
     }
 }
 
+
 /**
  * Singleton class for setting up the plugin.
  *
@@ -99,6 +100,11 @@ class Disciple_Tools_Quick_Comments {
     }
 
     private function __construct() {
+      // @todo
+      // // Check if post type if Quick Comment friendly
+      //   $post_types = DT_Posts::get_post_types();
+      //   var_dump($post_types);die();
+
         $is_rest = dt_is_rest();
         require_once( 'rest-api/rest-api.php' ); // adds starter rest api class
 
@@ -162,7 +168,6 @@ class Disciple_Tools_Quick_Comments {
                         <li class="quick-comment-menu" data-quick-comment-id="` + last_comment_id + `">
                                <a data-type="quick-comment" id="newest-quick-comment">` + commentContent + `</a>
                            </li>` );
-                    $('#newest-quick-comment').click();
                 } )
             } );
 
@@ -208,7 +213,7 @@ class Disciple_Tools_Quick_Comments {
                     if ( ! $quick_comments ) {
                         echo '
                             <li class="quick-comment-menu">
-                                <a data-open="create-quick-comment-modal" id="no-quick-comments" style="color:#717171;"><i>No quick comments created yet.</i></a>
+                                <a data-open="create-quick-comment-modal" id="no-quick-comments" style="color:#717171;"><i>No quick comments created yet</i></a>
                             </li>';
                     } else {
                         foreach ( $quick_comments as $qc ) {
@@ -216,7 +221,7 @@ class Disciple_Tools_Quick_Comments {
                               <li class="quick-comment-menu" data-quick-comment-id="' . esc_html( $qc[0] ) . '">
                                   <a data-type="quick-comment">' . esc_html( $qc[2] ) . '</a>
                               </li>';
-                          }
+                        }
                     }
                     ?>
                     
@@ -264,7 +269,7 @@ class Disciple_Tools_Quick_Comments {
                 <div id="post-body" class="metabox-holder columns-2">
                     <div id="post-body-content">
                         <?php
-                            $this->main_column( $post_type );
+                            $this->manage_qc_module( $post_type );
                         ?>
                     </div><!-- end post-body-content -->
                 </div><!-- post-body meta box container -->
@@ -275,7 +280,7 @@ class Disciple_Tools_Quick_Comments {
             self::add_make_quick_comment_link();
     }
 
-    public function main_column( $post_type = 'all') {
+    public function manage_qc_module( $post_type = 'all') {
         $quick_comments = Disciple_Tools_Quick_Comments_Endpoints::get_quick_comments( $post_type );
 
         ?>
@@ -481,21 +486,20 @@ if ( ! function_exists( "dt_hook_ajax_notice_handler" )){
  * Also, see the instructions for version updating to understand the steps involved.
  * @see https://github.com/DiscipleTools/disciple-tools-version-control/wiki/How-to-Update-the-Starter-Plugin
  */
-//add_action( 'plugins_loaded', function (){
-//    if ( is_admin() ){
-//        // Check for plugin updates
-//        if ( ! class_exists( 'Puc_v4_Factory' ) ) {
-//            if ( file_exists( get_template_directory() . '/dt-core/libraries/plugin-update-checker/plugin-update-checker.php' )){
-//                require( get_template_directory() . '/dt-core/libraries/plugin-update-checker/plugin-update-checker.php' );
-//            }
-//        }
-//        if ( class_exists( 'Puc_v4_Factory' ) ){
-//            Puc_v4_Factory::buildUpdateChecker(
-//                'https://raw.githubusercontent.com/DiscipleTools/disciple-tools-facebook/master/version-control.json',
-//                __FILE__,
-//                'disciple-tools-facebook'
-//            );
-//
-//        }
-//    }
-//} );
+add_action( 'plugins_loaded', function (){
+    if ( is_admin() ){
+        // Check for plugin updates
+        if ( ! class_exists( 'Puc_v4_Factory' ) ) {
+            if ( file_exists( get_template_directory() . '/dt-core/libraries/plugin-update-checker/plugin-update-checker.php' )){
+                require( get_template_directory() . '/dt-core/libraries/plugin-update-checker/plugin-update-checker.php' );
+            }
+        }
+        if ( class_exists( 'Puc_v4_Factory' ) ){
+            Puc_v4_Factory::buildUpdateChecker(
+                'https://raw.githubusercontent.com/prykon/disciple-tools-quick-comments/master/version-control.json',
+                __FILE__,
+                'disciple-tools-quick-comments'
+            );
+        }
+    }
+} );
