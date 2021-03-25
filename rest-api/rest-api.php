@@ -4,7 +4,6 @@ if ( !defined( 'ABSPATH' ) ) { exit; } // Exit if accessed directly.
 class Disciple_Tools_Quick_Comments_Endpoints
 {
     /**
-     * @todo Set the permissions your endpoint needs
      * @link https://github.com/DiscipleTools/Documentation/blob/master/Theme-Core/capabilities.md
      * @var string[]
      */
@@ -66,6 +65,7 @@ class Disciple_Tools_Quick_Comments_Endpoints
         }
         return $dt_quick_comments_filtered;
     }
+
     // Get the quick comments for the dropdown menu
     public function get_quick_comments_endpoint( WP_REST_Request $request ) {
         $params = $request->get_params();
@@ -177,7 +177,12 @@ class Disciple_Tools_Quick_Comments_Endpoints
         return self::$_instance;
     } // End instance()
     public function __construct() {
-        add_action( 'rest_api_init', [ $this, 'add_api_routes' ] );
+
+        $is_rest = dt_is_rest();
+        if ( $is_rest && strpos( dt_get_url_path(), 'disciple_tools_quick_comments' ) !== false ) {
+            add_action( 'rest_api_init', [ $this, 'add_api_routes' ] );
+        }
+
     }
 
     public function has_permission() {
