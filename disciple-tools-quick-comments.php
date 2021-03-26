@@ -18,12 +18,6 @@
  *          https://www.gnu.org/licenses/gpl-2.0.html
  */
 
-/**
- * Refactoring (renaming) this plugin as your own:
- * 3. @todo Update the README.md and LICENSE
- * 4. @todo Update the default.pot file if you intend to make your plugin multilingual. Use a tool like POEdit
- */
-
 if ( ! defined( 'ABSPATH' ) ) {
     exit; // Exit if accessed directly
 }
@@ -89,7 +83,6 @@ if ( ! function_exists( 'dt_get_url_path' ) ) {
  */
 class Disciple_Tools_Quick_Comments {
 
-
     private static $_instance = null;
 
     public static function instance() {
@@ -100,24 +93,11 @@ class Disciple_Tools_Quick_Comments {
     }
 
     private function __construct() {
-      // @todo
-      // // Check if post type if Quick Comment friendly
-      //   $post_types = DT_Posts::get_post_types();
-      //   var_dump($post_types);die();
 
-        $is_rest = dt_is_rest();
         require_once( 'rest-api/rest-api.php' ); // adds starter rest api class
 
-        /**
-         * @todo Decide if you want to support localization of your plugin
-         * To remove: delete the line below and remove the folder named /languages
-         */
         $this->i18n();
 
-        /**
-         * @todo Decide if you want to customize links for your plugin in the plugin admin area
-         * To remove: delete the lines below and remove the function named
-         */
         if ( is_admin() ) { // adds links to the plugin description area in the plugin admin list.
             add_filter( 'plugin_row_meta', [ $this, 'plugin_description_links' ], 10, 4 );
         }
@@ -163,7 +143,7 @@ class Disciple_Tools_Quick_Comments {
                     catch(err){
                       return true; // It's ok if there's no "no quick comments created yet" row.
                     }
-                    
+
                     $("ul").find("[data-open='create-quick-comment-modal']").after(`
                         <li class="quick-comment-menu" data-quick-comment-id="` + last_comment_id + `">
                                <a data-type="quick-comment" id="newest-quick-comment">` + commentContent + `</a>
@@ -224,7 +204,7 @@ class Disciple_Tools_Quick_Comments {
                         }
                     }
                     ?>
-                    
+
                     <li class="quick-comment-menu" data-open="manage-quick-comments-modal" style="border-top:1px solid #cacaca;">
                       <a>manage quick comments</a>
                     </li>
@@ -349,8 +329,8 @@ class Disciple_Tools_Quick_Comments {
         if ( strpos( $plugin_file_name, basename( __FILE__ ) ) ) {
             // You can still use `array_unshift()` to add links at the beginning.
 
-            $links_array[] = '<a href="https://disciple.tools">Disciple.Tools Community</a>'; // @todo replace with your links.
-            // @todo add other links here
+            $links_array[] = '<a href="https://disciple.tools">Disciple.Tools Community</a>';
+
         }
 
         return $links_array;
@@ -465,7 +445,6 @@ if ( ! function_exists( "dt_hook_ajax_notice_handler" )){
 
 /**
  * Plugin Releases and updates
- * @todo Uncomment and change the url if you want to support remote plugin updating with new versions of your plugin
  * To remove: delete the section of code below and delete the file called version-control.json in the plugin root
  *
  * This section runs the remote plugin updating service, so you can issue distributed updates to your plugin
@@ -473,9 +452,6 @@ if ( ! function_exists( "dt_hook_ajax_notice_handler" )){
  * @note See the instructions for version updating to understand the steps involved.
  * @link https://github.com/DiscipleTools/disciple-tools-quick-comments/wiki/Configuring-Remote-Updating-System
  *
- * @todo Enable this section with your own hosted file
- * @todo An example of this file can be found in (version-control.json)
- * @todo Github is a good option for delivering static json.
  */
 /**
  * Check for plugin updates even when the active theme is not Disciple.Tools
