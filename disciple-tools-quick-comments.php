@@ -110,9 +110,8 @@ class Disciple_Tools_Quick_Comments {
     public function quick_comments_modal_help_text(){
         ?>
         <div class="help-section" id="quick-comments-help-text" style="display: none">
-          <h3>Quick Comments Buttons</h3>
-          <p>These quick comments buttons are here to aid you in updating comments faster and in a descriptive fashion.</p>
-          <p>You can create a posted comment into a quick comment by clicking on the \'create quick comment\' link next to it.</p>
+          <h3><?php echo esc_html__( 'Quick Comments Buttons', 'disciple-tools-quick-comments' ); ?></h3>
+          <p><?php echo esc_html__( 'These quick comments buttons are here to aid you in updating the state of contacts and groups in a faster and descriptive fashion.', 'disciple-tools-quick-comments' ); ?></p>
         </div>
         <?php
     }
@@ -183,11 +182,11 @@ class Disciple_Tools_Quick_Comments {
         <ul class="dropdown menu" data-dropdown-menu style="display: inline-block">
                 <li style="border-radius: 5px">
                     <a class="button menu-white-dropdown-arrow"
-                       style="background-color: #00897B; color: white;">Quick Comments
+                       style="background-color: #00897B; color: white;"><?php echo esc_html__( 'Quick Comments', 'disciple-tools-quick-comments' ); ?>
                    </a>
                 <ul id="quick-answers-dropdown-menu" class="menu is-dropdown-submenu" style="width: max-content">
                     <li class="quick-comment-menu" data-open="create-quick-comment-modal" style="border-bottom:1px solid #cacaca;">
-                      <a><i>new quick comment...</i></a>
+                      <a><i><?php echo esc_html__( 'new quick comment...', 'disciple-tools-quick-comments' ); ?></i></a>
                     </li>
                     <?php $quick_comments = Disciple_Tools_Quick_Comments_Endpoints::get_quick_comments( $post_type );
                     if ( ! $quick_comments ) {
@@ -206,7 +205,7 @@ class Disciple_Tools_Quick_Comments {
                     ?>
 
                     <li class="quick-comment-menu" data-open="manage-quick-comments-modal" style="border-top:1px solid #cacaca;">
-                      <a>manage quick comments</a>
+                      <a><?php echo esc_html__( 'manage quick comments', 'disciple-tools-quick-comments' ); ?></a>
                     </li>
                 </ul>
             </li>
@@ -217,23 +216,23 @@ class Disciple_Tools_Quick_Comments {
         </button>
 
         <div class="reveal" id="create-quick-comment-modal" data-reveal data-reset-on-close>
-            <h3><?php esc_html_e( 'Quick Comments', 'disciple_tools' ); ?></h3>
-            <p><?php esc_html_e( 'Add a new quick comment', 'disciple_tools' ); ?></p>
+            <h3><?php esc_html__( 'Quick Comments', 'disciple-tools-quick-comments' ); ?></h3>
+            <p><?php esc_html__( 'Add a new quick comment', 'disciple-tools-quick-comments' ); ?></p>
 
             <form class="js-create-quick-comment">
                 <label for="title">
-                    <?php esc_html_e( 'Quick Comment', 'disciple_tools' ); ?>
+                    <?php esc_html_e( 'Quick Comment', 'disciple-tools-quick-comments' ); ?>
                 </label>
-                <input name="title" id="new-quick-comment" type="text" placeholder="<?php esc_html_e( "Quick Comments", 'disciple_tools' ); ?>" required aria-describedby="name-help-text">
-                <p class="help-text" id="name-help-text"><?php esc_html_e( "This is required", "disciple_tools" ); ?></p>
+                <input name="title" id="new-quick-comment" type="text" placeholder="<?php esc_html_e( "Quick Comments", 'disciple-tools-quick-comments' ); ?>" required aria-describedby="name-help-text">
+                <p class="help-text" id="name-help-text"><?php esc_html_e( "This is required", "disciple-tools-quick-comments" ); ?></p>
             </form>
 
             <div class="grid-x">
                 <button class="button button-cancel clear" data-close aria-label="Close reveal" type="button">
-                    <?php echo esc_html__( 'Cancel', 'disciple_tools' )?>
+                    <?php echo esc_html__( 'Cancel', 'disciple-tools-quick-comments' )?>
                 </button>
                 <button class="button" data-close type="button" id="create-quick-comment-return">
-                    <?php esc_html_e( 'Create and post quick comment', 'disciple_tools' ); ?>
+                    <?php esc_html_e( 'Create and post quick comment', 'disciple-tools-quick-comments' ); ?>
                 </button>
                 <button class="close-button" data-close aria-label="Close modal" type="button">
                     <span aria-hidden="true">&times;</span>
@@ -242,8 +241,8 @@ class Disciple_Tools_Quick_Comments {
         </div>
 
         <div class="reveal" id="manage-quick-comments-modal" data-reveal data-reset-on-close>
-            <h3><?php esc_html_e( 'Manage Quick Comments', 'disciple_tools' )?></h3>
-            <p><?php esc_html_e( 'Select which quick comments you want to un-quicken', 'disciple_tools' ); ?></p>
+            <h3><?php esc_html_e( 'Manage Quick Comments', 'disciple-tools-quick-comments' )?></h3>
+            <p><?php esc_html_e( 'Select which quick comments you want to un-quicken', 'disciple-tools-quick-comments' ); ?></p>
             <div class="wrap">
             <div id="poststuff">
                 <div id="post-body" class="metabox-holder columns-2">
@@ -267,16 +266,16 @@ class Disciple_Tools_Quick_Comments {
         <table class="widefat striped">
             <thead>
                 <tr>
-                    <th>Quick Comments</th>
-                    <th>Type</th>
-                    <th style="text-align: right;">Action</th>
+                    <th><?php echo esc_html__( 'Quick Comments', 'disciple-tools-quick-comments' ); ?></th>
+                    <th><?php echo esc_html__( 'Type', 'disciple-tools-quick-comments' ); ?></th>
+                    <th style="text-align: right;"><?php echo esc_html__( 'Action', 'disciple-tools-quick-comments' ); ?></th>
                 </tr>
             </thead>
             <tbody>
                 <?php if ( ! $quick_comments ) : ?>
                 <tr>
                     <td colspan="3">
-                        <i>No quick comments created yet. <a data-open="create-quick-comment-modal">Create one now.</a></i>
+                        <i><?php echo esc_html__( 'No quick comments created yet.', 'disciple-tools-quick-comments' ); ?><a data-open="create-quick-comment-modal">Create one now.</a></i>
                     </td>
                 </tr>
             <?php endif; ?>
@@ -291,10 +290,20 @@ class Disciple_Tools_Quick_Comments {
                         <?php echo esc_html( $comment_content ); ?>
                     </td>
                     <td>
-                        <?php echo esc_html( $comment_post_type ); ?>
+                        <?php
+                        if ( $comment_post_type === 'contacts' ) {
+                            echo esc_html__( 'Contacts', 'disciple_tools' );
+                        }
+                        else if ( $comment_post_type === 'groups') {
+                            echo esc_html__( 'Groups', 'disciple_tools' );
+                        }
+                        else {
+                            echo esc_html( $comment_post_type );
+                        }
+                        ?>
                     </td>
                     <td style="text-align: right;">
-                        <a href="javascript:unquicken_comment(<?php echo esc_html( $comment_id ); ?>);">un-quicken</a>
+                        <a href="javascript:unquicken_comment(<?php echo esc_html( $comment_id ); ?>);"><?php echo esc_html__( 'un-quicken', 'disciple-tools-quick-comments' ); ?></a>
                     </td>
                 </tr>
                 <?php endforeach; ?>
