@@ -31,8 +31,8 @@ msgid ""
 "These quick comments buttons are here to aid you in updating the state of "
 "contacts and groups in a faster and descriptive fashion."
 msgstr ""
-"Estos botones de comentarios rápidos están para ayudarte a actualizar los "
-"estados de contactos y grupos de una forma rápida y descriptiva."
+"Estos botones de comentarios rápidos están para ayudarle a actualizar los "
+"estados de contactos y grupos de manera rápida y descriptiva."
 
 #: disciple-tools-quick-comments.php:185 disciple-tools-quick-comments.php:219
 #: disciple-tools-quick-comments.php:226 disciple-tools-quick-comments.php:269
@@ -73,7 +73,7 @@ msgstr "Administrar Comentarios Rápidos"
 
 #: disciple-tools-quick-comments.php:245
 msgid "Select which quick comments you want to un-quicken"
-msgstr "Seleccioná qué comentarios rápidos querés desacelerar"
+msgstr "Selecciona qué comentarios rápidos quieres desacelerar"
 
 #: disciple-tools-quick-comments.php:270
 msgid "Type"
@@ -85,7 +85,7 @@ msgstr "Acción"
 
 #: disciple-tools-quick-comments.php:278
 msgid "No quick comments created yet."
-msgstr "Todavía no hay comentarios rápidos."
+msgstr "Aún no hay comentarios rápidos."
 
 #: disciple-tools-quick-comments.php:306
 msgid "un-quicken"
