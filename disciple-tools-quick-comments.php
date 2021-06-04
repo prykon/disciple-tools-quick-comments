@@ -1,13 +1,13 @@
 <?php
 /**
- * Plugin Name: Disciple Tools - Quick Comments Plugin
- * Plugin URI: https://github.com/DiscipleTools/disciple-tools-quick-comments
- * Description: Disciple Tools - Quick Comments Plugin is intended to help developers and integrator jumpstart their extension of the Disciple Tools system.
+ * Plugin Name: Disciple Tools - Quick Comments
+ * Plugin URI: https://github.com/prykon/disciple-tools-quick-comments
+ * Description: Disciple Tools - Quick Comments Plugin is intended to help users post updates more efficiently.
  * Text Domain: disciple-tools-quick-comments
  * Domain Path: /languages
- * Version:  1.5
- * Author URI: https://github.com/DiscipleTools
- * GitHub Plugin URI: https://github.com/DiscipleTools/disciple-tools-quick-comments
+ * Version:  1.1
+ * Author URI: https://github.com/prykon
+ * GitHub Plugin URI: https://github.com/prykon/disciple-tools-quick-comments
  * Requires at least: 4.7.0
  * (Requires 4.7+ because of the integration of the REST API at 4.7 and the security requirements of this milestone version.)
  * Tested up to: 5.6
@@ -16,14 +16,6 @@
  * @link    https://github.com/DiscipleTools
  * @license GPL-2.0 or later
  *          https://www.gnu.org/licenses/gpl-2.0.html
- */
-
-/**
- * Refactoring (renaming) this plugin as your own:
- * 1. @todo Refactor all occurrences of the name Disciple_Tools_Quick_Comments, disciple_tools_quick_comments, disciple-tools-quick-comments, quick_comment, and "Quick Comments Plugin"
- * 2. @todo Rename the `disciple-tools-quick-comments.php and menu-and-tabs.php files.
- * 3. @todo Update the README.md and LICENSE
- * 4. @todo Update the default.pot file if you intend to make your plugin multilingual. Use a tool like POEdit
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -41,6 +33,9 @@ function disciple_tools_quick_comments() {
     $disciple_tools_quick_comments_required_dt_theme_version = '1.0';
     $wp_theme = wp_get_theme();
     $version = $wp_theme->version;
+
+    $url = dt_get_url_path();
+    $post_type = esc_html( explode( '/', $url )[0] );
 
     /*
      * Check if the Disciple.Tools theme is loaded and is the latest required version
@@ -62,10 +57,9 @@ function disciple_tools_quick_comments() {
     }
 
     return Disciple_Tools_Quick_Comments::instance();
-
 }
+
 add_action( 'after_setup_theme', 'disciple_tools_quick_comments', 20 );
-//agregar acá el hook que corre el js que mete los links?
 
 /**
  * Singleton class for setting up the plugin.
@@ -76,6 +70,7 @@ add_action( 'after_setup_theme', 'disciple_tools_quick_comments', 20 );
 class Disciple_Tools_Quick_Comments {
 
     private static $_instance = null;
+
     public static function instance() {
         if ( is_null( self::$_instance ) ) {
             self::$_instance = new self();
@@ -85,53 +80,10 @@ class Disciple_Tools_Quick_Comments {
 
     private function __construct() {
 
-        $is_rest = dt_is_rest();
-        /**
-         * @todo Decide if you want to use the REST API example
-         * To remove: delete this following line and remove the folder named /rest-api
-         */
-        if ( strpos( dt_get_url_path(), 'disciple_tools_quick_comments_template' ) !== false ) {
-            require_once( 'rest-api/rest-api.php' ); // adds starter rest api class
-        }
+        require_once( 'rest-api/rest-api.php' ); // adds starter rest api class
 
-        /**
-         * @todo Decide if you want to create a new post type
-         * To remove: delete the line below and remove the folder named /post-type
-         */
-        require_once( 'post-type/loader.php' ); // add starter post type extension to Disciple Tools system
-
-        /**
-         * @todo Decide if you want to create a custom site-to-site link
-         * To remove: delete the line below and remove the folder named /site-link
-         */
-        require_once( 'site-link/custom-site-to-site-links.php' ); // add site to site link class and capabilities
-
-        /**
-         * @todo Decide if you want to add new charts to the metrics section
-         * To remove: delete the line below and remove the folder named /charts
-         */
-        if ( strpos( dt_get_url_path(), 'metrics' ) !== false || ( $is_rest && strpos( dt_get_url_path(), 'disciple-tools-quick-comments-metrics' ) !== false ) ){
-            require_once( 'charts/charts-loader.php' );  // add custom charts to the metrics area
-        }
-
-        /**
-         * @todo Decide if you want to add a custom admin page in the admin area
-         * To remove: delete the 3 lines below and remove the folder named /admin
-         */
-        if ( is_admin() ) {
-            require_once( 'admin/admin-menu-and-tabs.php' ); // adds starter admin page and section for plugin
-        }
-
-        /**
-         * @todo Decide if you want to support localization of your plugin
-         * To remove: delete the line below and remove the folder named /languages
-         */
         $this->i18n();
 
-        /**
-         * @todo Decide if you want to customize links for your plugin in the plugin admin area
-         * To remove: delete the lines below and remove the function named
-         */
         if ( is_admin() ) { // adds links to the plugin description area in the plugin admin list.
             add_filter( 'plugin_row_meta', [ $this, 'plugin_description_links' ], 10, 4 );
         }
@@ -144,142 +96,224 @@ class Disciple_Tools_Quick_Comments {
     public function quick_comments_modal_help_text(){
         ?>
         <div class="help-section" id="quick-comments-help-text" style="display: none">
-                <h3>Quick Comments Buttons</h3>
-                <p>These quick comments buttons are here to aid you in updating comments faster and in a descriptive fashion.</p>
-                <p>You can create a posted comment into a quick comment by clicking on the \'create quick comment\' link next to it.</p>
+          <h3><?php echo esc_html__( 'Quick Comments Buttons', 'disciple-tools-quick-comments' ); ?></h3>
+          <p><?php echo esc_html__( 'These quick comments buttons are here to aid you in updating the state of contacts and groups in a faster and descriptive fashion.', 'disciple-tools-quick-comments' ); ?></p>
         </div>
-        <?php self::add_make_quick_comment_link();
-    }
-
-    public function add_make_quick_comment_link(){
-        ?>
-        <script>
-            /* Function that quickens or un-quickens comments*/
-            function quickenComment( commentID ){
-                let postId = window.detailsSettings.post_id
-                let postType = window.detailsSettings.post_type
-                let comment_content = $('.comment-bubble.' + commentID).find('.comment-text')[0].innerText
-                let commentType = $('.open-edit-comment[data-id="' + commentID + '"').data('type')
-                if (commentType == 'comment'){
-                    commentType = 'qc_' + postType
-                } else {
-                    commentType = 'comment'
-                }
-                window.API.update_comment(postType, postId, commentID, comment_content, commentType)
-                }
-         </script>
-
-         
-
-
-        <script>
-            // function test(){
-            //     let postId = window.detailsSettings.post_id
-            //     let postType = window.detailsSettings.post_type
-            //     let comments = window.API.get_comments(postType, postId)
-
-            //     window.API = {get_comments: (post_type, postId) => makeRequestOnPosts('GET', `${postType}/${postId}`).then(data => {
-            //         let comment = data.comment
-            //         console.log(comment)
-            //     }}
-            // }
-
-            // test()
-        </script>
-
-        <script>
-            /* Waits for comments to finish loading and then loads (un)quicken links */
-            setTimeout(
-                function(){
-                    $('.open-delete-comment').each(function(i,item){
-                        let commentID = $(item).data('id')
-                        let commentType = $('.open-edit-comment[data-id="' + commentID + '"').data('type')
-                        let quickText;
-                        if (commentType == 'comment'){
-                            quickText = 'quicken'
-                        } else {
-                            quickText = 'un-quicken'
-                        }
-                        $(item).after(`<a href="javascript:quickenComment(` + $(item).data('id') + `)" class="open-quicken-comment ` + $(item).data('id') + `" data-id="` + $(item).data('id') + `" data-comment-type="` + $(item).data('comment-type') + `" title="create a quick comment from this comment"><img src="${_.escape( window.wpApiShare.template_dir )}/dt-assets/images/view-comments.svg"> ` + quickText + `</a>`)
-                    })
-                }, 2000)
-        </script>
-        
         <?php
     }
 
-    public function get_quick_comments( $post_type ){
-        global $wpdb;
+    public function add_make_quick_comment_link() {
+        ?>
+        <script>
+            // Create a new quick comment
+            $( '#create-quick-comment-return' ).on( 'click', function () {
+                let commentContent = $('#new-quick-comment').val();
+                let postId = window.detailsSettings.post_id;
+                let postType = window.detailsSettings.post_type;
+                window.API.post_comment( postType, postId, commentContent, 'comment' ).done( function( data ) {
+                  let last_comment_id = data.comment_ID;
+                    $.ajax( {
+                        type: "GET",
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json",
+                        url: window.location.origin + '/wp-json/disciple_tools_quick_comments/v1/update_quick_comments/quicken/' + last_comment_id,
+                        beforeSend: function(xhr) {
+                            xhr.setRequestHeader('X-WP-Nonce', '<?php echo esc_attr( wp_create_nonce( 'wp_rest' ) ) ?>' );
+                            },
+                        } );
+                    //Check if there's a "no quick comments created yet" row and delete it
+                    try {
+                      $("#no-quick-comments").remove();
+                    }
+                    catch(err){
+                      return true; // It's ok if there's no "no quick comments created yet" row.
+                    }
 
-        $query = $wpdb->prepare( "
-            SELECT DISTINCT comment_content
-            FROM $wpdb->comments
-            WHERE comment_type = %s
-            AND user_id = %d
-            ORDER BY comment_content ASC;
-        ", 'qc_' . $post_type, get_current_user_id());
+                    $("ul").find("[data-open='create-quick-comment-modal']").after(`
+                        <li class="quick-comment-menu" data-quick-comment-id="` + last_comment_id + `">
+                               <a data-type="quick-comment" id="newest-quick-comment">` + commentContent + `</a>
+                           </li>` );
+                } )
+            } );
 
-        $results = $wpdb->get_col( $query );
-        return $results;
+          // Post the quick comment from dropdown menu
+          $( document ).on( 'click', 'a[data-type="quick-comment"]', function() {
+            let postId = window.detailsSettings.post_id;
+            let postType = window.detailsSettings.post_type;
+            let commentContent = $( this ).text();
+            let commentType = 'qc_' + postType;
+            window.API.post_comment( postType, postId, commentContent, commentType ).done( data => {} ).catch( err => {
+              console.log( 'error' );
+              console.log( err );
+              jQuery( '#errors' ).append( err.responseText);
+            } )
+          } );
+
+            $( document ).ready( function() {
+                try {
+                    let postType = window.detailsSettings.post_type;
+                }
+                catch(err) {
+                   console.log( 'error' );
+                   console.log( err );
+                   jQuery( '#errors' ).append( err.responseText);
+                }
+            })
+        </script>
+        <?php
     }
 
-
     public function quick_comments_menu( $post_type = '' ){
-        $quick_comments = self::get_quick_comments( 'contacts' );
-        $menu = '<ul class="dropdown menu" data-dropdown-menu style="display: inline-block">
+        ?>
+        <ul class="dropdown menu" data-dropdown-menu style="display: inline-block">
                 <li style="border-radius: 5px">
                     <a class="button menu-white-dropdown-arrow"
-                       style="background-color: #00897B; color: white;">Quick Comments';
-        $menu .= '</a>
-                    <ul class="menu is-dropdown-submenu" style="width: max-content">';
-                        if(!$quick_comments){
-                            $menu .='
-                                    <li class="quick-comment-menu" data-id="' . esc_attr( $field ) .'">
-                                        <a><i>no quick comments created yet for ' . $post_type . ' </i></a>
-                                    </li>';
-                                } else {
-                                    foreach ( $quick_comments as $quick_comment) {
-                                        $menu .='
-                                            <li class="quick-comment-menu" data-id="' . esc_attr( $field ) .'">
-                                                <a data-type="quick-comment">' . esc_html( $quick_comment ) . '</a>
-                                            </li>';
-                                        }
-                                }
-                                $menu .= '
-                    </ul>
-                </li>
-            </ul>
-            <button class="help-button" data-section="quick-comments-help-text">
-                <img class="help-icon"
-                     src="' . esc_html( get_template_directory_uri() ) . '/dt-assets/images/help.svg"/>
-            </button>
-            ';
-        echo $menu;
-?>
+                       style="background-color: #00897B; color: white;"><?php echo esc_html__( 'Quick Comments', 'disciple-tools-quick-comments' ); ?>
+                   </a>
+                <ul id="quick-answers-dropdown-menu" class="menu is-dropdown-submenu" style="width: max-content">
+                    <li class="quick-comment-menu" data-open="create-quick-comment-modal" style="border-bottom:1px solid #cacaca;">
+                      <a><i><?php echo esc_html__( 'new quick comment...', 'disciple-tools-quick-comments' ); ?></i></a>
+                    </li>
+                    <?php $quick_comments = Disciple_Tools_Quick_Comments_Endpoints::get_quick_comments( $post_type );
+                    if ( ! $quick_comments ) {
+                        echo '
+                            <li class="quick-comment-menu">
+                                <a data-open="create-quick-comment-modal" id="no-quick-comments" style="color:#717171;"><i>No quick comments created yet</i></a>
+                            </li>';
+                    } else {
+                        foreach ( $quick_comments as $qc ) {
+                            echo '
+                              <li class="quick-comment-menu" data-quick-comment-id="' . esc_html( $qc[0] ) . '">
+                                  <a data-type="quick-comment">' . esc_html( $qc[2] ) . '</a>
+                              </li>';
+                        }
+                    }
+                    ?>
 
-    <script>
-        function post_quick_comment(commentInput) {
-            let postId = window.detailsSettings.post_id
-            let postType = window.detailsSettings.post_type
-            let commentType = 'qc_' + postType
-            let commentButton = jQuery("#add-comment-button")
-            
-                window.API.post_comment(postType, postId, commentInput, commentType ).then(data => {
-            }).catch(err => {
-                  console.log("error")
-                  console.log(err)
-                  jQuery("#errors").append(err.responseText)
+                    <li class="quick-comment-menu" data-open="manage-quick-comments-modal" style="border-top:1px solid #cacaca;">
+                      <a><?php echo esc_html__( 'manage quick comments', 'disciple-tools-quick-comments' ); ?></a>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+
+        <button class="help-button" data-section="quick-comments-help-text">
+            <img class="help-icon" src="<?php echo esc_html( get_template_directory_uri() ); ?>/dt-assets/images/help.svg"/>
+        </button>
+
+        <div class="reveal" id="create-quick-comment-modal" data-reveal data-reset-on-close>
+            <h3><?php esc_html__( 'Quick Comments', 'disciple-tools-quick-comments' ); ?></h3>
+            <p><?php esc_html__( 'Add a new quick comment', 'disciple-tools-quick-comments' ); ?></p>
+
+            <form class="js-create-quick-comment">
+                <label for="title">
+                    <?php esc_html_e( 'Quick Comment', 'disciple-tools-quick-comments' ); ?>
+                </label>
+                <input name="title" id="new-quick-comment" type="text" placeholder="<?php esc_html_e( "Quick Comments", 'disciple-tools-quick-comments' ); ?>" required aria-describedby="name-help-text">
+                <p class="help-text" id="name-help-text"><?php esc_html_e( "This is required", "disciple-tools-quick-comments" ); ?></p>
+            </form>
+
+            <div class="grid-x">
+                <button class="button button-cancel clear" data-close aria-label="Close reveal" type="button">
+                    <?php echo esc_html__( 'Cancel', 'disciple-tools-quick-comments' )?>
+                </button>
+                <button class="button" data-close type="button" id="create-quick-comment-return">
+                    <?php esc_html_e( 'Create and post quick comment', 'disciple-tools-quick-comments' ); ?>
+                </button>
+                <button class="close-button" data-close aria-label="Close modal" type="button">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="reveal" id="manage-quick-comments-modal" data-reveal data-reset-on-close>
+            <h3><?php esc_html_e( 'Manage Quick Comments', 'disciple-tools-quick-comments' )?></h3>
+            <p><?php esc_html_e( 'Select which quick comments you want to un-quicken', 'disciple-tools-quick-comments' ); ?></p>
+            <div class="wrap">
+            <div id="poststuff">
+                <div id="post-body" class="metabox-holder columns-2">
+                    <div id="post-body-content">
+                        <?php
+                            $this->manage_qc_module( $post_type );
+                        ?>
+                    </div><!-- end post-body-content -->
+                </div><!-- post-body meta box container -->
+            </div><!--poststuff end -->
+        </div>
+        </div>
+          <?php
+            self::add_make_quick_comment_link();
+    }
+
+    public function manage_qc_module( $post_type = 'all') {
+        $quick_comments = Disciple_Tools_Quick_Comments_Endpoints::get_quick_comments( $post_type );
+
+        ?>
+        <table class="widefat striped">
+            <thead>
+                <tr>
+                    <th><?php echo esc_html__( 'Quick Comments', 'disciple-tools-quick-comments' ); ?></th>
+                    <th><?php echo esc_html__( 'Type', 'disciple-tools-quick-comments' ); ?></th>
+                    <th style="text-align: right;"><?php echo esc_html__( 'Action', 'disciple-tools-quick-comments' ); ?></th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php if ( ! $quick_comments ) : ?>
+                <tr>
+                    <td colspan="3">
+                        <i><?php echo esc_html__( 'No quick comments created yet.', 'disciple-tools-quick-comments' ); ?><a data-open="create-quick-comment-modal">Create one now.</a></i>
+                    </td>
+                </tr>
+            <?php endif; ?>
+                <?php foreach ( $quick_comments as $qc ) : ?>
+                    <?php
+                        $comment_id = $qc[0];
+                        $comment_post_type = $qc[1];
+                        $comment_content = $qc[2];
+                    ?>
+                <tr>
+                    <td>
+                        <?php echo esc_html( $comment_content ); ?>
+                    </td>
+                    <td>
+                        <?php
+                        if ( $comment_post_type === 'contacts' ) {
+                            echo esc_html__( 'Contacts', 'disciple_tools' );
+                        }
+                        else if ( $comment_post_type === 'groups') {
+                            echo esc_html__( 'Groups', 'disciple_tools' );
+                        }
+                        else {
+                            echo esc_html( $comment_post_type );
+                        }
+                        ?>
+                    </td>
+                    <td style="text-align: right;">
+                        <a href="javascript:unquicken_comment(<?php echo esc_html( $comment_id ); ?>);"><?php echo esc_html__( 'un-quicken', 'disciple-tools-quick-comments' ); ?></a>
+                    </td>
+                </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+        <script>
+            function unquicken_comment( commentId ) {
+                jQuery( function( $ ) {
+                    $.ajax( {
+                        type: "GET",
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json",
+                        url: window.location.origin + '/wp-json/disciple_tools_quick_comments/v1/update_quick_comments/unquicken/' + commentId,
+                        beforeSend: function(xhr) {
+                            xhr.setRequestHeader('X-WP-Nonce', '<?php echo esc_attr( wp_create_nonce( 'wp_rest' ) ) ?>' );
+                        },
+                    } )
+                    .done( function( data ) {
+                        window.location.reload()
+                    } );
                 })
-          }
-    </script>
-
-    <script>
-        $("a[data-type='quick-comment']").on('click', function(){
-            post_quick_comment(this.innerText)
-        })
-    </script>
-
-<?php
+            }
+        </script>
+        <?php
     }
 
     /**
@@ -290,8 +324,8 @@ class Disciple_Tools_Quick_Comments {
         if ( strpos( $plugin_file_name, basename( __FILE__ ) ) ) {
             // You can still use `array_unshift()` to add links at the beginning.
 
-            $links_array[] = '<a href="https://disciple.tools">Disciple.Tools Community</a>'; // @todo replace with your links.
-            // @todo add other links here
+            $links_array[] = '<a href="https://disciple.tools">Disciple.Tools Community</a>';
+
         }
 
         return $links_array;
@@ -359,11 +393,6 @@ class Disciple_Tools_Quick_Comments {
 }
 
 
-// Register activation hook.
-register_activation_hook( __FILE__, [ 'Disciple_Tools_Quick_Comments', 'activation' ] );
-register_deactivation_hook( __FILE__, [ 'Disciple_Tools_Quick_Comments', 'deactivation' ] );
-
-
 if ( ! function_exists( 'disciple_tools_quick_comments_hook_admin_notice' ) ) {
     function disciple_tools_quick_comments_hook_admin_notice() {
         global $disciple_tools_quick_comments_required_dt_theme_version;
@@ -392,10 +421,6 @@ if ( ! function_exists( 'disciple_tools_quick_comments_hook_admin_notice' ) ) {
                     });
                 });
             </script>
-
-            <script>
-                
-            </script>
         <?php }
     }
 }
@@ -415,7 +440,6 @@ if ( ! function_exists( "dt_hook_ajax_notice_handler" )){
 
 /**
  * Plugin Releases and updates
- * @todo Uncomment and change the url if you want to support remote plugin updating with new versions of your plugin
  * To remove: delete the section of code below and delete the file called version-control.json in the plugin root
  *
  * This section runs the remote plugin updating service, so you can issue distributed updates to your plugin
@@ -423,9 +447,6 @@ if ( ! function_exists( "dt_hook_ajax_notice_handler" )){
  * @note See the instructions for version updating to understand the steps involved.
  * @link https://github.com/DiscipleTools/disciple-tools-quick-comments/wiki/Configuring-Remote-Updating-System
  *
- * @todo Enable this section with your own hosted file
- * @todo An example of this file can be found in (version-control.json)
- * @todo Github is a good option for delivering static json.
  */
 /**
  * Check for plugin updates even when the active theme is not Disciple.Tools
@@ -436,21 +457,20 @@ if ( ! function_exists( "dt_hook_ajax_notice_handler" )){
  * Also, see the instructions for version updating to understand the steps involved.
  * @see https://github.com/DiscipleTools/disciple-tools-version-control/wiki/How-to-Update-the-Starter-Plugin
  */
-//add_action( 'plugins_loaded', function (){
-//    if ( is_admin() ){
-//        // Check for plugin updates
-//        if ( ! class_exists( 'Puc_v4_Factory' ) ) {
-//            if ( file_exists( get_template_directory() . '/dt-core/libraries/plugin-update-checker/plugin-update-checker.php' )){
-//                require( get_template_directory() . '/dt-core/libraries/plugin-update-checker/plugin-update-checker.php' );
-//            }
-//        }
-//        if ( class_exists( 'Puc_v4_Factory' ) ){
-//            Puc_v4_Factory::buildUpdateChecker(
-//                'https://raw.githubusercontent.com/DiscipleTools/disciple-tools-facebook/master/version-control.json',
-//                __FILE__,
-//                'disciple-tools-facebook'
-//            );
-//
-//        }
-//    }
-//} );
+add_action( 'plugins_loaded', function (){
+    if ( is_admin() ){
+        // Check for plugin updates
+        if ( ! class_exists( 'Puc_v4_Factory' ) ) {
+            if ( file_exists( get_template_directory() . '/dt-core/libraries/plugin-update-checker/plugin-update-checker.php' )){
+                require( get_template_directory() . '/dt-core/libraries/plugin-update-checker/plugin-update-checker.php' );
+            }
+        }
+        if ( class_exists( 'Puc_v4_Factory' ) ){
+            Puc_v4_Factory::buildUpdateChecker(
+                'https://raw.githubusercontent.com/prykon/disciple-tools-quick-comments/master/version-control.json',
+                __FILE__,
+                'disciple-tools-quick-comments'
+            );
+        }
+    }
+} );

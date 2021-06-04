@@ -36,7 +36,7 @@ class Disciple_Tools_Quick_Comments_Menu {
      * @static
      * @return Disciple_Tools_Quick_Comments_Menu instance
      */
-    public static function instance() {        
+    public static function instance() {
         if ( is_null( self::$_instance ) ) {
             self::$_instance = new self();
         }
@@ -94,9 +94,9 @@ class Disciple_Tools_Quick_Comments_Menu {
             <h2>Quick Comments Plugin</h2>
             <h2 class="nav-tab-wrapper">
                 <a href="<?php echo esc_attr( $link ) . 'all' ?>" class="nav-tab <?php echo esc_html( ( $tab == 'all' || !isset( $tab ) ) ? 'nav-tab-active' : '' ); ?>">All</a>
-                <?php foreach($tabs as $t ) : ?>
+                <?php foreach ( $tabs as $t ) : ?>
                 
-                <a href="<?php echo esc_attr( $link ) . $t ?>" class="nav-tab <?php echo esc_html( ( $tab == $t || !isset( $tab ) ) ? 'nav-tab-active' : '' ); ?>"><?php echo ucwords( esc_html( $t ) ); ?></a>
+                <a href="<?php echo esc_attr( $link ) . esc_attr( $t ) ?>" class="nav-tab <?php echo esc_html( ( $tab == $t || !isset( $tab ) ) ? 'nav-tab-active' : '' ); ?>"><?php echo esc_html( ucwords( $t ) ); ?></a>
             <?php endforeach; ?>
             </h2>
             <?php
@@ -157,8 +157,8 @@ class Disciple_Tools_Quick_Comments_Tab {
                 SELECT DISTINCT comment_content, REPLACE(comment_type, 'qc_', '') AS comment_type
                 FROM $wpdb->comments
                 WHERE comment_type = %s
-                ORDER BY comment_content ASC;"
-                , 'qc_' . $quick_comment_type );
+                ORDER BY comment_content ASC;",
+            'qc_' . $quick_comment_type );
         }
         $results = $wpdb->get_results( $query, ARRAY_A );
         return $results;
@@ -176,14 +176,14 @@ class Disciple_Tools_Quick_Comments_Tab {
                 </tr>
             </thead>
             <tbody>
-                <?php if( ! $quick_comments ) : ?>
+                <?php if ( ! $quick_comments ) : ?>
                 <tr>
                     <td colspan="2">
                         <i>No quick comments created yet</i>
                     </td>
                 </tr>
             <?php endif; ?>
-                <?php foreach( $quick_comments as $quick_comment => $val ) : ?>
+                <?php foreach ( $quick_comments as $quick_comment => $val ) : ?>
                 <tr>
                     <td>
                         <?php echo esc_html( $val['comment_content'] ); ?>
