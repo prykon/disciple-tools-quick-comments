@@ -4,7 +4,6 @@ if ( !defined( 'ABSPATH' ) ) { exit; } // Exit if accessed directly.
 class Disciple_Tools_Quick_Comments_Endpoints
 {
     /**
-     * @todo Set the permissions your endpoint needs
      * @link https://github.com/DiscipleTools/Documentation/blob/master/Theme-Core/capabilities.md
      * @var string[]
      */
@@ -17,6 +16,7 @@ class Disciple_Tools_Quick_Comments_Endpoints
             $namespace, '/get_quick_comments/(?P<post_type>\w+)', [
                 'methods'  => 'GET',
                 'callback' => [ $this, 'get_quick_comments_endpoint' ],
+                'permission_callback' => '__return_true',
             ]
         );
 
@@ -24,6 +24,7 @@ class Disciple_Tools_Quick_Comments_Endpoints
             $namespace, 'get_all_quick_comments', [
                 'methods' => 'GET',
                 'callback' => [ $this, 'get_all_quick_comments' ],
+                'permission_callback' => '__return_true',
             ]
         );
 
@@ -31,6 +32,7 @@ class Disciple_Tools_Quick_Comments_Endpoints
             $namespace, '/update_quick_comments/(?P<comment_action>\w+)/(?P<comment_id>\d+)', [
                 'methods' => 'GET',
                 'callback' => [ $this, 'update_quick_comments' ],
+                'permission_callback' => '__return_true',
             ]
         );
 
@@ -38,6 +40,7 @@ class Disciple_Tools_Quick_Comments_Endpoints
             $namespace, '/unquicken_quick_comment_by_id/(?P<comment_id>\d+)', [
                 'methods' => 'GET',
                 'callback' => [ $this, 'unquicken_quick_comment_by_id' ],
+                'permission_callback' => '__return_true',
             ]
         );
     }
@@ -47,11 +50,13 @@ class Disciple_Tools_Quick_Comments_Endpoints
         $current_user_id = get_current_user_id();
 
         $dt_quick_comments = get_user_meta( $current_user_id, 'dt_quick_comments', false );
+        if ( ! $dt_quick_comments ) {
+            add_user_meta( $current_user_id, 'dt_quick_comments', [] );
+        }
         // Filter comment ids by post type
         $dt_quick_comments_filtered = [];
 
         foreach ( $dt_quick_comments[0] as $comment_id ) {
-            //var_export($comment_data);
             $comment_data = get_comment( $comment_id, ARRAY_A );
             $comment_post_id = $comment_data['comment_post_ID'];
             $comment_post_type = get_post_type( $comment_post_id );
@@ -63,6 +68,7 @@ class Disciple_Tools_Quick_Comments_Endpoints
         }
         return $dt_quick_comments_filtered;
     }
+
     // Get the quick comments for the dropdown menu
     public function get_quick_comments_endpoint( WP_REST_Request $request ) {
         $params = $request->get_params();
@@ -114,7 +120,6 @@ class Disciple_Tools_Quick_Comments_Endpoints
                 $new_quick_comments[] = $val;
             }
         }
-
 
         switch ( $comment_action ) {
             // Quicken the comment
@@ -175,7 +180,12 @@ class Disciple_Tools_Quick_Comments_Endpoints
         return self::$_instance;
     } // End instance()
     public function __construct() {
-        add_action( 'rest_api_init', [ $this, 'add_api_routes' ] );
+
+        $is_rest = dt_is_rest();
+        if ( $is_rest && strpos( dt_get_url_path(), 'disciple_tools_quick_comments' ) !== false ) {
+            add_action( 'rest_api_init', [ $this, 'add_api_routes' ] );
+        }
+
     }
 
     public function has_permission() {
