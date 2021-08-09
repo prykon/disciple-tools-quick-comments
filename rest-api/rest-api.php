@@ -16,6 +16,7 @@ class Disciple_Tools_Quick_Comments_Endpoints
             $namespace, '/get_quick_comments/(?P<post_type>\w+)', [
                 'methods'  => 'GET',
                 'callback' => [ $this, 'get_quick_comments_endpoint' ],
+                'permission_callback' => '__return_true',
             ]
         );
 
@@ -23,6 +24,7 @@ class Disciple_Tools_Quick_Comments_Endpoints
             $namespace, 'get_all_quick_comments', [
                 'methods' => 'GET',
                 'callback' => [ $this, 'get_all_quick_comments' ],
+                'permission_callback' => '__return_true',
             ]
         );
 
@@ -30,6 +32,7 @@ class Disciple_Tools_Quick_Comments_Endpoints
             $namespace, '/update_quick_comments/(?P<comment_action>\w+)/(?P<comment_id>\d+)', [
                 'methods' => 'GET',
                 'callback' => [ $this, 'update_quick_comments' ],
+                'permission_callback' => '__return_true',
             ]
         );
 
@@ -37,6 +40,7 @@ class Disciple_Tools_Quick_Comments_Endpoints
             $namespace, '/unquicken_quick_comment_by_id/(?P<comment_id>\d+)', [
                 'methods' => 'GET',
                 'callback' => [ $this, 'unquicken_quick_comment_by_id' ],
+                'permission_callback' => '__return_true',
             ]
         );
     }
