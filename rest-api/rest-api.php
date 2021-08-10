@@ -66,7 +66,7 @@ class Disciple_Tools_Quick_Comments_Endpoints
                 array_push( $dt_quick_comments_filtered, [ $comment_id, $comment_post_type, $comment_content ] );
             }
         }
-        return $dt_quick_comments_filtered;
+        return array_reverse( $dt_quick_comments_filtered, true );
     }
 
     // Get the quick comments for the dropdown menu

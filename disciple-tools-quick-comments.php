@@ -166,10 +166,10 @@ class Disciple_Tools_Quick_Comments {
     public function quick_comments_menu( $post_type = '' ){
         ?>
         <ul class="dropdown menu" data-dropdown-menu style="display: inline-block">
-                <li style="border-radius: 5px">
-                    <a class="button menu-white-dropdown-arrow"
-                       style="background-color: #00897B; color: white;"><?php echo esc_html__( 'Quick Comments', 'disciple-tools-quick-comments' ); ?>
-                   </a>
+            <li style="border-radius: 5px">
+                <a class="button menu-white-dropdown-arrow"
+                   style="background-color: #00897B; color: white;"><?php echo esc_html__( 'Quick Comments', 'disciple-tools-quick-comments' ); ?>
+               </a>
                 <ul id="quick-answers-dropdown-menu" class="menu is-dropdown-submenu" style="width: max-content">
                     <li class="quick-comment-menu" data-open="create-quick-comment-modal" style="border-bottom:1px solid #cacaca;">
                       <a><i><?php echo esc_html__( 'new quick comment...', 'disciple-tools-quick-comments' ); ?></i></a>
@@ -191,7 +191,7 @@ class Disciple_Tools_Quick_Comments {
                     ?>
 
                     <li class="quick-comment-menu" data-open="manage-quick-comments-modal" style="border-top:1px solid #cacaca;">
-                      <a><?php echo esc_html__( 'manage quick comments', 'disciple-tools-quick-comments' ); ?></a>
+                      <a onclick="populate_quick_comments_manager('<?php echo esc_attr( $post_type ); ?>');"><?php echo esc_html__( 'manage quick comments', 'disciple-tools-quick-comments' ); ?></a>
                     </li>
                 </ul>
             </li>
@@ -233,23 +233,7 @@ class Disciple_Tools_Quick_Comments {
             <div id="poststuff">
                 <div id="post-body" class="metabox-holder columns-2">
                     <div id="post-body-content">
-                        <?php
-                            $this->manage_qc_module( $post_type );
-                        ?>
-                    </div><!-- end post-body-content -->
-                </div><!-- post-body meta box container -->
-            </div><!--poststuff end -->
-        </div>
-        </div>
-          <?php
-            self::add_make_quick_comment_link();
-    }
-
-    public function manage_qc_module( $post_type = 'all') {
-        $quick_comments = Disciple_Tools_Quick_Comments_Endpoints::get_quick_comments( $post_type );
-
-        ?>
-        <table class="widefat striped">
+                        <table class="widefat striped">
             <thead>
                 <tr>
                     <th><?php echo esc_html__( 'Quick Comments', 'disciple-tools-quick-comments' ); ?></th>
@@ -257,44 +241,14 @@ class Disciple_Tools_Quick_Comments {
                     <th style="text-align: right;"><?php echo esc_html__( 'Action', 'disciple-tools-quick-comments' ); ?></th>
                 </tr>
             </thead>
-            <tbody>
-                <?php if ( ! $quick_comments ) : ?>
-                <tr>
-                    <td colspan="3">
-                        <i><?php echo esc_html__( 'No quick comments created yet.', 'disciple-tools-quick-comments' ); ?><a data-open="create-quick-comment-modal">Create one now.</a></i>
-                    </td>
-                </tr>
-            <?php endif; ?>
-                <?php foreach ( $quick_comments as $qc ) : ?>
-                    <?php
-                        $comment_id = $qc[0];
-                        $comment_post_type = $qc[1];
-                        $comment_content = $qc[2];
-                    ?>
-                <tr>
-                    <td>
-                        <?php echo esc_html( $comment_content ); ?>
-                    </td>
-                    <td>
-                        <?php
-                        if ( $comment_post_type === 'contacts' ) {
-                            echo esc_html__( 'Contacts', 'disciple_tools' );
-                        }
-                        else if ( $comment_post_type === 'groups') {
-                            echo esc_html__( 'Groups', 'disciple_tools' );
-                        }
-                        else {
-                            echo esc_html( $comment_post_type );
-                        }
-                        ?>
-                    </td>
-                    <td style="text-align: right;">
-                        <a href="javascript:unquicken_comment(<?php echo esc_html( $comment_id ); ?>);"><?php echo esc_html__( 'un-quicken', 'disciple-tools-quick-comments' ); ?></a>
-                    </td>
-                </tr>
-                <?php endforeach; ?>
+            <tbody id="manage-quick-comments-modal-body">
             </tbody>
         </table>
+                    </div><!-- end post-body-content -->
+                </div><!-- post-body meta box container -->
+            </div><!--poststuff end -->
+        </div>
+        </div>
         <script>
             function unquicken_comment( commentId ) {
                 jQuery( function( $ ) {
@@ -303,8 +257,8 @@ class Disciple_Tools_Quick_Comments {
                         contentType: "application/json; charset=utf-8",
                         dataType: "json",
                         url: window.location.origin + '/wp-json/disciple_tools_quick_comments/v1/update_quick_comments/unquicken/' + commentId,
-                        beforeSend: function(xhr) {
-                            xhr.setRequestHeader('X-WP-Nonce', '<?php echo esc_attr( wp_create_nonce( 'wp_rest' ) ) ?>' );
+                        beforeSend: function( xhr ) {
+                            xhr.setRequestHeader('X-WP-Nonce', '<?php echo esc_attr( wp_create_nonce( 'wp_rest' ) ); ?>' );
                         },
                     } )
                     .done( function( data ) {
@@ -312,8 +266,53 @@ class Disciple_Tools_Quick_Comments {
                     } );
                 })
             }
+
+            function populate_quick_comments_manager( postType ) {
+                // Get all quick comments for postType
+                jQuery.ajax( {
+                    type: "GET",
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    url: window.location.origin + '/wp-json/disciple_tools_quick_comments/v1/get_quick_comments/' + postType,
+                    beforeSend: function( xhr ) {
+                        xhr.setRequestHeader( 'X-WP-Nonce', '<?php echo esc_attr( wp_create_nonce( 'wp_rest' ) ); ?>')
+                    },
+                })
+
+                // Add quick comments to manage-comments modal
+                .done( jQuery.each( function( key, value ) {
+                    if ( key.length <= 0 ) {
+                        $('#manage-quick-comments-modal-body tr').remove();
+                        $('#manage-quick-comments-modal-body').append(`
+                            <tr>
+                                <td colspan="3">
+                                    <i>'No quick comments created yet.'<a data-open="create-quick-comment-modal"> Create one now.</a></i>
+                                </td>
+                            </tr>
+                            `);
+                    } else {
+                        $('#manage-quick-comments-modal-body tr').remove();
+                        jQuery.each( key, function( k, v ) {
+                           $('#manage-quick-comments-modal-body').append(`
+                            <tr>
+                                <td>
+                                    ` + key[k][2] + `
+                                </td>
+                                <td>
+                                    ` + key[k][1] + `
+                                </td>
+                                <td style="text-align: right;">
+                                    <a href="javascript:unquicken_comment(` + key[k][0] + `);">'un-quicken'</a>
+                                </td>
+                            </tr>
+                        ` );
+                        } );
+                    }
+                } ) );
+            }
         </script>
-        <?php
+          <?php
+            self::add_make_quick_comment_link();
     }
 
     /**
