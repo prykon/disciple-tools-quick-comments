@@ -178,7 +178,7 @@ class Disciple_Tools_Quick_Comments {
                     if ( ! $quick_comments ) {
                         echo '
                             <li class="quick-comment-menu">
-                                <a data-open="create-quick-comment-modal" id="no-quick-comments" style="color:#717171;"><i>No quick comments created yet</i></a>
+                                <a data-open="create-quick-comment-modal" id="no-quick-comments" style="color:#717171;"><i>' . esc_html__( "No quick comments created yet.", "disciple-tools-quick-comments" ) . '</i></a>
                             </li>';
                     } else {
                         foreach ( $quick_comments as $qc ) {
