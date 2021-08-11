@@ -286,7 +286,7 @@ class Disciple_Tools_Quick_Comments {
                         $('#manage-quick-comments-modal-body').append(`
                             <tr>
                                 <td colspan="3">
-                                    <i>'No quick comments created yet.'<a data-open="create-quick-comment-modal"> Create one now.</a></i>
+                                    <i>'<?php echo esc_html__( 'No quick comments created yet.', 'disciple-tools-quick-comments' ); ?>'<a data-open="create-quick-comment-modal"> <?php echo esc_html__( 'Create one now.', 'disciple-tools-quick-comments' ); ?></a></i>
                                 </td>
                             </tr>
                             `);
