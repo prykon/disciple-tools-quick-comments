@@ -5,7 +5,7 @@
  * Description: Disciple Tools - Quick Comments Plugin is intended to help users post updates more efficiently.
  * Text Domain: disciple-tools-quick-comments
  * Domain Path: /languages
- * Version:  1.1
+ * Version:  1.2
  * Author URI: https://github.com/prykon
  * GitHub Plugin URI: https://github.com/prykon/disciple-tools-quick-comments
  * Requires at least: 4.7.0
