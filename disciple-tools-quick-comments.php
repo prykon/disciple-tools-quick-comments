@@ -302,7 +302,7 @@ class Disciple_Tools_Quick_Comments {
                                     ` + key[k][1] + `
                                 </td>
                                 <td style="text-align: right;">
-                                    <a href="javascript:unquicken_comment(` + key[k][0] + `);">'un-quicken'</a>
+                                    <a href="javascript:unquicken_comment(` + key[k][0] + `);"><?php echo esc_html__( 'un-quicken', 'disciple-tools-quick-comments' ); ?></a>
                                 </td>
                             </tr>
                         ` );

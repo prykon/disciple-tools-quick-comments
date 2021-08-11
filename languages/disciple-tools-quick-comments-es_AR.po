@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Disciple Tools - Quick Comments Plugin\n"
-"POT-Creation-Date: 2021-04-29 13:52-0300\n"
-"PO-Revision-Date: 2021-04-30 08:37-0300\n"
+"POT-Creation-Date: 2021-08-11 15:25-0300\n"
+"PO-Revision-Date: 2021-08-11 15:38-0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: es_AR\n"
@@ -22,11 +22,11 @@ msgstr ""
 "X-Poedit-SearchPathExcluded-0: *.js\n"
 "X-Poedit-SearchPathExcluded-1: */libraries/*\n"
 
-#: disciple-tools-quick-comments.php:113
+#: disciple-tools-quick-comments.php:99
 msgid "Quick Comments Buttons"
 msgstr "Botones de Comentarios Rápidos"
 
-#: disciple-tools-quick-comments.php:114
+#: disciple-tools-quick-comments.php:100
 msgid ""
 "These quick comments buttons are here to aid you in updating the state of "
 "contacts and groups in a faster and descriptive fashion."
@@ -34,62 +34,62 @@ msgstr ""
 "Estos botones de comentarios rápidos están para ayudarte a actualizar los "
 "estados de contactos y grupos de una forma rápida y descriptiva."
 
-#: disciple-tools-quick-comments.php:185 disciple-tools-quick-comments.php:219
-#: disciple-tools-quick-comments.php:226 disciple-tools-quick-comments.php:269
+#: disciple-tools-quick-comments.php:171 disciple-tools-quick-comments.php:205
+#: disciple-tools-quick-comments.php:212 disciple-tools-quick-comments.php:239
 msgid "Quick Comments"
 msgstr "Comentarios rápidos"
 
-#: disciple-tools-quick-comments.php:189
+#: disciple-tools-quick-comments.php:175
 msgid "new quick comment..."
 msgstr "nuevo comentario rápido…"
 
-#: disciple-tools-quick-comments.php:208
+#: disciple-tools-quick-comments.php:194
 msgid "manage quick comments"
 msgstr "administrar comentarios rápidos"
 
-#: disciple-tools-quick-comments.php:220
+#: disciple-tools-quick-comments.php:206
 msgid "Add a new quick comment"
 msgstr "Agregar un comentario rápido nuevo"
 
-#: disciple-tools-quick-comments.php:224
+#: disciple-tools-quick-comments.php:210
 msgid "Quick Comment"
 msgstr "Comentario rápido"
 
-#: disciple-tools-quick-comments.php:227
+#: disciple-tools-quick-comments.php:213
 msgid "This is required"
 msgstr "Requerido"
 
-#: disciple-tools-quick-comments.php:232
+#: disciple-tools-quick-comments.php:218
 msgid "Cancel"
 msgstr "Cancelar"
 
-#: disciple-tools-quick-comments.php:235
+#: disciple-tools-quick-comments.php:221
 msgid "Create and post quick comment"
 msgstr "Crear y publicar comentario rápido"
 
-#: disciple-tools-quick-comments.php:244
+#: disciple-tools-quick-comments.php:230
 msgid "Manage Quick Comments"
 msgstr "Administrar Comentarios Rápidos"
 
-#: disciple-tools-quick-comments.php:245
+#: disciple-tools-quick-comments.php:231
 msgid "Select which quick comments you want to un-quicken"
 msgstr "Seleccioná qué comentarios rápidos querés desacelerar"
 
-#: disciple-tools-quick-comments.php:270
+#: disciple-tools-quick-comments.php:240
 msgid "Type"
 msgstr "Tipo"
 
-#: disciple-tools-quick-comments.php:271
+#: disciple-tools-quick-comments.php:241
 msgid "Action"
 msgstr "Acción"
 
-#: disciple-tools-quick-comments.php:278
+#: disciple-tools-quick-comments.php:289
 msgid "No quick comments created yet."
 msgstr "Todavía no hay comentarios rápidos."
 
-#: disciple-tools-quick-comments.php:306
-msgid "un-quicken"
-msgstr "desacelerar"
+#: disciple-tools-quick-comments.php:289
+msgid "Create one now."
+msgstr "Creá uno ahora."
 
 #. Plugin Name of the plugin/theme
 msgid "Disciple Tools - Quick Comments"
@@ -110,3 +110,6 @@ msgstr ""
 #. Author URI of the plugin/theme
 msgid "https://github.com/prykon"
 msgstr "https://github.com/prykon"
+
+#~ msgid "un-quicken"
+#~ msgstr "desacelerar"
