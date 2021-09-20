@@ -1,6 +1,6 @@
 {
 
-  "name": "Disciple Tools - Quick Comments",
+  "name": "Disciple.Tools - Quick Comments",
   "version": "1.2",
   "last_updated": "2021-08",
   "author": "prykon",
@@ -24,7 +24,7 @@
   },
   "icon": "https://raw.githubusercontent.com/prykon/disciple-tools-quick-comments/master/assets/logo.png",
   "sections": {
-    "description": "Disciple Tools - Quick Comments is intended to help users post updates more efficiently.",
+    "description": "Disciple.Tools - Quick Comments is intended to help users post updates more efficiently.",
     "installation": "(Required) You must have Disciple.Tools Theme installed before using this plugin. Once Disciple.Tools is installed, you can use the normal Plugin system to install the plugin.",
     "changelog": ""
   }

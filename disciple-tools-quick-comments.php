@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name: Disciple Tools - Quick Comments
+ *Plugin Name: Disciple.Tools - Quick Comments
  * Plugin URI: https://github.com/prykon/disciple-tools-quick-comments
  * Description: Disciple Tools - Quick Comments Plugin is intended to help users post updates more efficiently.
  * Text Domain: disciple-tools-quick-comments
