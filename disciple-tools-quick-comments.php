@@ -2,7 +2,7 @@
 /**
  *Plugin Name: Disciple.Tools - Quick Comments
  * Plugin URI: https://github.com/prykon/disciple-tools-quick-comments
- * Description: Disciple Tools - Quick Comments Plugin is intended to help users post updates more efficiently.
+ * Description: Disciple.Tools - Quick Comments Plugin is intended to help users post updates more efficiently.
  * Text Domain: disciple-tools-quick-comments
  * Domain Path: /languages
  * Version:  1.2
@@ -397,9 +397,9 @@ if ( ! function_exists( 'disciple_tools_quick_comments_hook_admin_notice' ) ) {
         global $disciple_tools_quick_comments_required_dt_theme_version;
         $wp_theme = wp_get_theme();
         $current_version = $wp_theme->version;
-        $message = "'Disciple Tools - Quick Comments Plugin' plugin requires 'Disciple Tools' theme to work. Please activate 'Disciple Tools' theme or make sure it is latest version.";
+        $message = "'Disciple.Tools - Quick Comments Plugin' plugin requires 'Disciple.Tools' theme to work. Please activate 'Disciple.Tools' theme or make sure it is latest version.";
         if ( $wp_theme->get_template() === "disciple-tools-theme" ){
-            $message .= ' ' . sprintf( esc_html( 'Current Disciple Tools version: %1$s, required version: %2$s' ), esc_html( $current_version ), esc_html( $disciple_tools_quick_comments_required_dt_theme_version ) );
+            $message .= ' ' . sprintf( esc_html( 'Current Disciple.Tools version: %1$s, required version: %2$s' ), esc_html( $current_version ), esc_html( $disciple_tools_quick_comments_required_dt_theme_version ) );
         }
         // Check if it's been dismissed...
         if ( ! get_option( 'dismissed-disciple-tools-quick-comments', false ) ) { ?>
