@@ -1,5 +1,5 @@
 ![Plugin Banner](https://raw.githubusercontent.com/prykon/disciple-tools-quick-comments/master/assets/quick-comments-banner.png)
-# Disciple Tools - Quick Comments
+# Disciple.Tools - Quick Comments
 
 Tired of writing the same old comments every day? The Quick Comments plugin will help you speed up the process!
 
@@ -25,7 +25,7 @@ Go into any post page (contacts, groups, etc.) and you'll see a new dropdown men
 
 ## Requirements
 
-- Disciple Tools Theme
+- Disciple.Tools Theme
 
 ## Installing
 
