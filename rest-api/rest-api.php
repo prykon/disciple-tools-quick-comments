@@ -56,6 +56,10 @@ class Disciple_Tools_Quick_Comments_Endpoints
         // Filter comment ids by post type
         $dt_quick_comments_filtered = [];
 
+        if ( empty( $dt_quick_comments ) ) {
+            return;
+        }
+
         foreach ( $dt_quick_comments[0] as $comment_id ) {
             $comment_data = get_comment( $comment_id, ARRAY_A );
             $comment_post_id = $comment_data['comment_post_ID'];
