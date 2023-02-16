@@ -141,7 +141,7 @@ class Disciple_Tools_Quick_Comments {
             let postId = window.detailsSettings.post_id;
             let postType = window.detailsSettings.post_type;
             let commentContent = $( this ).text();
-            let commentType = 'qc_' + postType;
+            let commentType = 'comment';
             window.API.post_comment( postType, postId, commentContent, commentType ).done( data => {} ).catch( err => {
               console.log( 'error' );
               console.log( err );
