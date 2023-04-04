@@ -34,13 +34,10 @@ function disciple_tools_quick_comments() {
     $wp_theme = wp_get_theme();
     $version = $wp_theme->version;
 
-    $url = dt_get_url_path();
-    $post_type = esc_html( explode( '/', $url )[0] );
-
     /*
      * Check if the Disciple.Tools theme is loaded and is the latest required version
      */
-    $is_theme_dt = strpos( $wp_theme->get_template(), "disciple-tools-theme" ) !== false || $wp_theme->name === "Disciple Tools";
+    $is_theme_dt = class_exists( "Disciple_Tools" );
     if ( $is_theme_dt && version_compare( $version, $disciple_tools_quick_comments_required_dt_theme_version, "<" ) ) {
         add_action( 'admin_notices', 'disciple_tools_quick_comments_hook_admin_notice' );
         add_action( 'wp_ajax_dismissed_notice_handler', 'dt_hook_ajax_notice_handler' );
@@ -457,7 +454,7 @@ if ( ! function_exists( "dt_hook_ajax_notice_handler" )){
  * @see https://github.com/DiscipleTools/disciple-tools-version-control/wiki/How-to-Update-the-Starter-Plugin
  */
 add_action( 'plugins_loaded', function (){
-    if ( is_admin() ){
+    if ( is_admin() && !( is_multisite() && class_exists( "DT_Multisite" ) ) || wp_doing_cron() ){
         // Check for plugin updates
         if ( ! class_exists( 'Puc_v4_Factory' ) ) {
             if ( file_exists( get_template_directory() . '/dt-core/libraries/plugin-update-checker/plugin-update-checker.php' )){
