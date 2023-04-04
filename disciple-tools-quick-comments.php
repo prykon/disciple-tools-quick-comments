@@ -34,9 +34,6 @@ function disciple_tools_quick_comments() {
     $wp_theme = wp_get_theme();
     $version = $wp_theme->version;
 
-    $url = dt_get_url_path();
-    $post_type = esc_html( explode( '/', $url )[0] );
-
     /*
      * Check if the Disciple.Tools theme is loaded and is the latest required version
      */
